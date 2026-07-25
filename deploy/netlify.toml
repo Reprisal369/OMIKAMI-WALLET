@@ -1,0 +1,25 @@
+# OMIKAMI WALLET — Netlify header template (alternative to _headers).
+# Prefer the generated apps/web/out/_headers (run `pnpm csp`). Use this ONLY if
+# you standardize on netlify.toml — do not set the CSP in both places.
+#
+# Publish directory: apps/web/out
+#
+# The Content-Security-Policy value below is a PLACEHOLDER: its script-src
+# hashes change every build. Paste the exact CSP line from the freshly generated
+# apps/web/out/_headers into the value marked <<< PASTE CSP >>>.
+
+[build]
+  publish = "apps/web/out"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "<<< PASTE the CSP line from apps/web/out/_headers here >>>"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    Permissions-Policy = "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=(), interest-cohort=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Resource-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"

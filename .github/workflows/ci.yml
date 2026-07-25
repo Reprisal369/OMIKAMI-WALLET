@@ -1,0 +1,117 @@
+# OMIKAMI WALLET — CI (Gate 5 automation)
+#
+# Every third-party action is pinned to a FULL COMMIT SHA (resolved from the
+# official repository via `git ls-remote` on 2026-07-25); the trailing comment
+# records the human-readable version. Re-verify a SHA before bumping it.
+#
+# Before first activation, in the GitHub repository settings:
+#   - Enable branch protection on `main` (require these checks, require a PR,
+#     dismiss stale approvals, include administrators, block force-pushes).
+#   - Fork-PR secret isolation is on by default; this workflow needs NO secrets
+#     beyond the automatic GITHUB_TOKEN.
+# See GITHUB_SETUP.md for the exact click-path.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege by default; individual jobs widen only if they must.
+permissions:
+  contents: read
+
+# A newer push to the same ref cancels the in-flight run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      # lint · typecheck · typecheck:e2e · unit · forbidden · secrets · build · bundle · audit
+      - run: pnpm verify
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      # Both Playwright projects (Desktop Chrome + Pixel 7) use Chromium.
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  sbom-and-hash:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm sbom
+      - run: pnpm --filter @omikami/web build
+      # Generate the CSP/_headers from the built export so its hashes match the
+      # exact bytes we hash below and ship.
+      - run: pnpm csp
+      - name: Reproducible-build manifest hash (OMIKAMI_BUILD_ID = commit SHA)
+        run: OMIKAMI_BUILD_ID="${{ github.sha }}" pnpm release:hash
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: sbom-and-release-manifest
+          path: |
+            sbom.json
+            release-manifest.json
+            apps/web/out/_headers
+          retention-days: 30
+
+  osv-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        with:
+          scan-args: |-
+            --lockfile=pnpm-lock.yaml
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITLEAKS_LICENSE is required ONLY for GitHub Organization repos.
+          # Personal/public repositories do not need it. See GITHUB_SETUP.md.
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        with:
+          fail-on-severity: low

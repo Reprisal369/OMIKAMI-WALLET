@@ -1,0 +1,41 @@
+{
+  "name": "omikami-wallet",
+  "version": "0.5.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "eslint .",
+    "format": "prettier --check .",
+    "build": "pnpm --filter @omikami/web build",
+    "check:forbidden": "node scripts/check-forbidden-terms.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "verify": "pnpm lint && pnpm typecheck && pnpm typecheck:e2e && pnpm test && pnpm check:forbidden && pnpm check:secrets && pnpm build && pnpm check:bundle && pnpm audit",
+    "typecheck:e2e": "tsc -p tests/e2e --noEmit",
+    "e2e": "playwright test",
+    "sbom": "node scripts/generate-sbom.mjs",
+    "csp": "node scripts/generate-csp.mjs",
+    "release:hash": "node scripts/release-hash.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1",
+    "@types/node": "26.1.1",
+    "eslint": "10.7.0",
+    "prettier": "3.9.5",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.63.0",
+    "vitest": "4.1.10"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.10",
+      "sharp": ">=0.35.0",
+      "brace-expansion": ">=5.0.8"
+    }
+  }
+}

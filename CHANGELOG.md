@@ -1,0 +1,115 @@
+# Changelog
+
+All notable changes to OMIKAMI WALLET are documented here.
+
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
+this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+> Status: every version below is **read-only** and **testnet-only (Ethereum
+> Sepolia)**. Nothing has been published or deployed. The wallet holds no keys,
+> signs nothing, and takes no custody. Version tags mark stable local
+> checkpoints so a future change that breaks something can be rolled back to a
+> known-good state. The first PUBLIC release is gated on: GitHub CI active,
+> Actions pinned to commit SHAs, CSP enforced at hosting, and an independent
+> external review (see `MAINNET_CHECKLIST.md` and `docs/reviews/`).
+
+## [Unreleased]
+
+- Preparing the production-ready development workflow: GitHub repository, active
+  CI on every commit, branch protection, CSP at the hosting layer, and external
+  code-audit preparation. No new wallet features until this is in place.
+
+## [0.5.0] — 2026-07-25 — Read-only allowance dashboard
+
+### Added
+- **Allowance dashboard (read-only).** Discovers ERC-20 approvals from
+  `Approval` event logs (via `eth_getLogs`, never a contract call) and shows,
+  per active allowance: token name, symbol, spender (with copy + explorer),
+  current allowance, an unlimited-allowance warning, a risk badge, and the
+  verification source. Live allowance values are read **only** for reviewed
+  registry tokens; unknown token contracts are quarantined and never called
+  (THREAT_MODEL D3).
+- Pure, unit-tested logic in `@omikami/security`: `summarizeApprovals`,
+  `classifyAllowanceRisk`, `isUnlimitedAllowance` (11 tests).
+- e2e test 21: dashboard is read-only, empty state on clean history, no
+  approve/revoke/sign controls.
+
+### Security
+- No approve, revoke, permit, sign, send, swap, bridge, staking, or deployment
+  path exists. Display only.
+
+### Verified
+- Local gates green: lint, typecheck (all + e2e), unit 85/85, forbidden-pattern,
+  secrets, build, bundle (34 files / 0 unknown hosts), audit 0. Playwright 38/38
+  (desktop + mobile).
+
+## [0.4.0] — 2026-07-25 — Read-only transfer preview
+
+### Added
+- **Transfer preview (read-only).** Simulates a hypothetical transfer and runs
+  OMIKAMI SHIELD checks before anything could ever be signed: invalid/non-EIP-55
+  address, zero-address burn, sending to a token's own contract, self-send,
+  address-poisoning lookalike, over-balance, too many decimals, unverified
+  token. `signingAvailable` is a literal `false`; no submit/send/sign control
+  exists.
+- Pure, unit-tested logic: `buildSendPreview`, `parseAmountInput` (integer-only
+  amount parsing, no floating point) — 20 tests.
+- e2e tests 19–20.
+
+### Fixed
+- Dependency audit: patched a dev-only advisory (brace-expansion via
+  eslint→minimatch, not shipped) with a pnpm override.
+
+## [0.3.1] — 2026-07-13 — Security & build foundation (tooling)
+
+### Added
+- Verification gates as code: forbidden-pattern gate (key material, browser
+  storage, HTML injection, credential inputs, keystore, eval), secret gate,
+  bundle-allowlist gate; hardened ESLint bans; root `pnpm verify`.
+- Reproducible-build manifest (`release-hash`) and SBOM generation.
+- CI workflow definition (prepared, not yet active; actions must be pinned to
+  commit SHAs before first run).
+- Documents: DEPENDENCY_POLICY, PRIVACY, INCIDENT_RESPONSE, RELEASE_CHECKLIST,
+  CONTRIBUTING, LICENSE (MIT).
+
+### Known limitations
+- Next 16 Turbopack export is not yet byte-reproducible (Gate 8, pre-mainnet).
+- CSP must be enforced at the hosting layer (Gate 7).
+
+## [0.3.0] — 2026-07-13 — Activity feed + quarantine
+
+### Added
+- Read-only recent ERC-20 activity from `eth_getLogs` (no indexer), with
+  direction, amount, counterparty, block, and explorer links.
+- Unknown-token **quarantine**: unsolicited/unknown token contracts are listed
+  by address and never called by the app.
+- User-configurable Sepolia RPC endpoint with strict validation (https-only;
+  rejects credentials, localhost, private/loopback/link-local/CGNAT ranges,
+  IPv6 literals, bare dotless hosts) — the app's only opt-in browser storage.
+
+## [0.2.0] — 2026-07-13 — Portfolio
+
+### Added
+- Read-only ERC-20 balances for a reviewed token registry (Sepolia USDC,
+  double-sourced: Circle docs + Etherscan). Token identity is always
+  chainId + EIP-55 address; names/symbols are untrusted display strings,
+  sanitized before rendering.
+
+## [0.1.0] — 2026-07-13 — Read-only shell
+
+### Added
+- Injected-wallet connect/disconnect (EIP-1193 / EIP-6963), checksummed address
+  display with poisoning-aware emphasis, native balance, network + wrong-network
+  warning (no auto-switching), RPC status probe, and the OMIKAMI SHIELD status
+  panel.
+- Non-custodial by construction: no seed phrase, private key, or keystore import
+  exists anywhere; `transactionsEnabled` is false everywhere (enforced by test).
+- Playwright e2e harness with a mocked EIP-1193 provider and intercepted RPC.
+
+[Unreleased]: https://example.com/omikami-wallet/compare/v0.5.0...HEAD
+[0.5.0]: https://example.com/omikami-wallet/releases/v0.5.0
+[0.4.0]: https://example.com/omikami-wallet/releases/v0.4.0
+[0.3.1]: https://example.com/omikami-wallet/releases/v0.3.1
+[0.3.0]: https://example.com/omikami-wallet/releases/v0.3.0
+[0.2.0]: https://example.com/omikami-wallet/releases/v0.2.0
+[0.1.0]: https://example.com/omikami-wallet/releases/v0.1.0
