@@ -9,3 +9,8 @@ coverage/
 !.env.example
 release-manifest.json
 sbom.json
+
+# Playwright test artifacts (generated locally and in CI)
+test-results/
+playwright-report/
+
