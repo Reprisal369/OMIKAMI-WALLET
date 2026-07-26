@@ -1,0 +1,71 @@
+# OMIKAMI WALLET — Dependabot configuration (conservative).
+#
+# Policy (see SECURITY_AUDIT_SCOPE.md / DEPENDENCY_POLICY.md):
+#   - Weekly schedule.
+#   - NO auto-merge. Dependabot only OPENS pull requests; a human merges.
+#   - Every PR runs the full CI + branch-protection gates before it can merge,
+#     and its lockfile change is reviewed by hand.
+#   - PATCH and MINOR updates are grouped SEPARATELY (one PR each), to keep
+#     review small and clear.
+#   - MAJOR-version updates are IGNORED here and done only via a manual,
+#     approved PR. (Note: `pnpm audit` in CI still catches any vulnerability,
+#     including one that would need a major bump, so nothing slips through.)
+#   - Security fixes are grouped and prioritised.
+version: 2
+updates:
+  # --- npm / pnpm workspace ------------------------------------------------
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps)"
+    ignore:
+      # Major versions handled ONLY by manual, approved PRs.
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+    groups:
+      npm-patch:
+        applies-to: version-updates
+        update-types:
+          - "patch"
+      npm-minor:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+      npm-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  # --- GitHub Actions (keep the pinned SHAs current, reviewed) -------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "ci"
+      - "dependencies"
+    commit-message:
+      prefix: "ci(actions)"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+    groups:
+      actions-patch:
+        applies-to: version-updates
+        update-types:
+          - "patch"
+      actions-minor:
+        applies-to: version-updates
+        update-types:
+          - "minor"
