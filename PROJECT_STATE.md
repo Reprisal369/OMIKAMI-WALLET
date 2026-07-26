@@ -1,6 +1,18 @@
 # OMIKAMI WALLET — PROJECT_STATE.md
 
-Last updated: 2026-07-26 (session 9: LIVE on Cloudflare Pages + read-only verified live; favicon)
+Last updated: 2026-07-26 (session 10: EXTERNAL AUDIT PACKAGE assembled for v0.5.0)
+
+## Session 10 — EXTERNAL AUDIT PACKAGE (2026-07-26)
+
+Roadmap step 7 prep. DOCUMENTATION ONLY — no product code, deps, transaction/mainnet/analytics, or auto-updates added (one doc-error fix: audit table said `wagmi/accounts`, corrected to the actually-banned `viem/accounts`).
+
+Audited product-code commit: **760c88f8ed9ad094307adb768e6527f5d099e884** (session-9 HEAD). Fresh clean-build results captured: unit 85 (7+68+10), lint/typecheck/typecheck:e2e PASS, forbidden 0, secrets 0, build PASS, bundle 37 files/0 hosts/0 sourcemaps, audit 0, SBOM 186 components (MIT 143, Apache 21, ISC 8, BSD-2 6, BSD-3 2, MPL-2.0 2, LGPL-3.0 1, CC-BY-4.0 1, BlueOak 1, 0BSD 1), Playwright 38/38 (owner). Runtime hosts: `11155111.rpc.thirdweb.com` + `eth.merkle.io` + self only. CSP + full header set confirmed live.
+
+New files: `SECURITY_AUDIT_SCOPE.md` (in/out of scope, frozen-deps policy, future Dependabot rules) and `docs/reviews/AUDIT_PACKAGE_v0.5.0.md` (items 1–13: commit, architecture+trust boundaries, threat-model→file/test map, dependency inventory+SBOM, outbound domains, headers/CSP, CI+branch-protection evidence, latest results, known limits/residual risks, repro steps, Sepolia test procedure, read-only confirmation, highest-risk file list). Complements the existing `docs/reviews/EXTERNAL_AUDIT_PREP.md`.
+
+Shipped via PR (branch protection). AFTER merge: tag **v0.5.0-readonly-audit-candidate** on the merge commit (docs-only on top of the audited SHA). Dependabot deferred, with agreed rules recorded in SECURITY_AUDIT_SCOPE.md: no auto-merge, PRs only, all gates required, manual lockfile review, majors handled separately.
+
+## Session 9 — FIRST LIVE DEPLOYMENT (2026-07-26)
 
 ## Session 9 — FIRST LIVE DEPLOYMENT (2026-07-26)
 
