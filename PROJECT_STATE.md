@@ -12,6 +12,8 @@ New files: `SECURITY_AUDIT_SCOPE.md` (in/out of scope, frozen-deps policy, futur
 
 Shipped via PR (branch protection). AFTER merge: tag **v0.5.0-readonly-audit-candidate** on the merge commit (docs-only on top of the audited SHA). Dependabot deferred, with agreed rules recorded in SECURITY_AUDIT_SCOPE.md: no auto-merge, PRs only, all gates required, manual lockfile review, majors handled separately.
 
+FOLLOW-UPS SHIPPED (2026-07-26, via PRs #4 and later): (a) `.github/dependabot.yml` — conservative: weekly, patch & minor grouped SEPARATELY, majors ignored (manual only), grouped security updates, no auto-merge. (b) GitHub **Release** published for tag `v0.5.0-readonly-audit-candidate` (pre-release) with full notes. (c) `docs/reviews/REVIEWER_HANDOFF.md` — the "send this" page for an external reviewer (repo/tag/live links, ready-to-send outreach message, requested deliverable, how to choose a reviewer, post-review flow). Audit-prep phase (roadmap step 7) is now fully prepared; awaiting an external reviewer. No product code changed in any of these.
+
 ## Session 9 — FIRST LIVE DEPLOYMENT (2026-07-26)
 
 ## Session 9 — FIRST LIVE DEPLOYMENT (2026-07-26)
