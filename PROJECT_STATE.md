@@ -1,6 +1,26 @@
 # OMIKAMI WALLET — PROJECT_STATE.md
 
-Last updated: 2026-07-25 (session 8: PRODUCTION-READINESS PREP — versioning, CI SHA-pinning, CSP, audit prep)
+Last updated: 2026-07-26 (session 9: LIVE on Cloudflare Pages + read-only verified live; favicon)
+
+## Session 9 — FIRST LIVE DEPLOYMENT (2026-07-26)
+
+Roadmap step 5 (GitHub CI + branch protection) and step 6 (hosting + CSP) are DONE and owner-verified.
+
+GitHub (owner did the clicks, guided): repo live at github.com/Reprisal369/OMIKAMI-WALLET (public, MIT), tag v0.5.0 pushed, CI green on push (verify/e2e/sbom-and-hash/osv-scan/secret-scan), branch protection ruleset `protect-main` ACTIVE (require PR w/ 0 approvals, require those 5 status checks + up-to-date, block force pushes, restrict deletions). Dependency graph + Dependabot alerts enabled (fixed the dependency-review check). Owner completed their first full PR (chore: stop tracking test-results/, added to .gitignore) end-to-end.
+
+Cloudflare Pages (owner did the clicks, guided): live at **https://omikami-wallet.pages.dev**, Git-connected auto-build from `main`. Build config: command `pnpm install --frozen-lockfile && pnpm --filter @omikami/web build && pnpm csp`, output `apps/web/out`, `NODE_VERSION=22`, root `/`. Cloudflare applies the generated `_headers` (CSP etc.) automatically.
+
+READ-ONLY VERIFIED ON THE LIVE BUILD (2026-07-26):
+- Source: only read hooks (useAccount/useBalance/useReadContract(s)/usePublicClient/useBlockNumber/useEnsName/useConnect/useDisconnect); NO useSendTransaction/useWriteContract/useSignMessage/useSwitchChain or `.sendTransaction/.writeContract/.signMessage` anywhere. `transactionsEnabled` false everywhere (unit-tested). forbidden-gate 0, secret-gate 0.
+- Bundle honesty note: the built JS contains viem library strings `eth_sendRawTransaction`, `wallet_switchEthereumChain`, `wallet_addEthereumChain` — these are library internals with NO reachable path in our app; reachability is what's controlled (runtime invariant + e2e test 15), not string absence.
+- Header nav "Send/Receive/Swap" etc. are disabled `<span aria-disabled>` labels ("Available in a later phase"), not links/buttons — inert.
+- Live browser verification (owner, MetaMask): connect on Sepolia → checksummed address, 0.05 SepoliaETH, USDC 20 (verified), activity empty state, SHIELD all-OK. Console: only wallet-extension noise + a favicon 404 (now fixed) — NO CSP violations. Network: only same-origin + `11155111.rpc.thirdweb.com` (+ `eth.merkle.io` for ENS) — no unexpected hosts. Response headers confirmed live: full `Content-Security-Policy` (with script hashes), `Referrer-Policy: no-referrer`, and the rest from `_headers`. Wrong-network test: switched MetaMask to mainnet (chain 1) → orange wrong-network warning + SHIELD Network=Warning, balance read fails gracefully (no fake data), NO auto-switch. All correct.
+
+This session's code change: added `apps/web/src/app/icon.svg` (gold ring on charcoal) → Next emits `<link rel="icon" type="image/svg+xml">`; fixes the `/favicon.ico` 404. Shipped via PR (branch protection now requires PRs).
+
+Roadmap now: 1–4 ✅ · 5 GitHub CI+protection ✅ · 6 hosting+CSP ✅ (live, verified) · 7 👉 external audit (EXTERNAL_AUDIT_PREP.md ready) · 8 transactions (gated behind 7 + full threat-model sign-off). Still strictly read-only, testnet-only; the pages.dev URL is a preview, not an announced public launch.
+
+## Session 8 — PRODUCTION-READINESS PREP (2026-07-25)
 
 ## Session 8 — PRODUCTION-READINESS PREP (2026-07-25)
 
