@@ -32,10 +32,20 @@ Date: 2026-07-13
 
 ## Reporting a vulnerability
 
-- Responsible disclosure contact: SECURITY-CONTACT-TO-BE-ESTABLISHED (email + PGP key to be published before any public deployment — placeholder is intentionally non-functional; a real channel is a Gate 11 requirement).
-- Please do not open public issues for exploitable vulnerabilities.
-- Commitment: acknowledgment within 72 hours, status updates at least weekly, no legal action against good-faith research within scope.
-- Scope, safe-harbor wording, and bounty tiers are defined before mainnet (Gate 11).
+- **Primary channel — GitHub Private Vulnerability Reporting.** On the repository,
+  go to the **Security** tab → **Report a vulnerability** (this opens a private
+  advisory visible only to the maintainer). This is the preferred route for the
+  read-only audit-candidate; it needs no email address to be published.
+  Maintainers: enable it once under Settings → Advanced Security → *Private
+  vulnerability reporting* → **Enable**.
+- If private reporting is unavailable, contact the maintainer privately via their
+  GitHub profile (`github.com/Reprisal369`) rather than a public issue.
+- **Please do not open public issues for exploitable vulnerabilities.**
+- Commitment: acknowledgment within 72 hours, status updates at least weekly, no
+  legal action against good-faith research within scope.
+- A dedicated security email + PGP key, formal safe-harbor wording, and bounty
+  tiers are established before mainnet (MAINNET_CHECKLIST Gate 11). Until then the
+  channels above are the live disclosure route for this testnet, read-only build.
 
 ## Release integrity
 

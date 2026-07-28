@@ -14,6 +14,8 @@ Shipped via PR (branch protection). AFTER merge: tag **v0.5.0-readonly-audit-can
 
 FOLLOW-UPS SHIPPED (2026-07-26, via PRs #4 and later): (a) `.github/dependabot.yml` — conservative: weekly, patch & minor grouped SEPARATELY, majors ignored (manual only), grouped security updates, no auto-merge. (b) GitHub **Release** published for tag `v0.5.0-readonly-audit-candidate` (pre-release) with full notes. (c) `docs/reviews/REVIEWER_HANDOFF.md` — the "send this" page for an external reviewer (repo/tag/live links, ready-to-send outreach message, requested deliverable, how to choose a reviewer, post-review flow). Audit-prep phase (roadmap step 7) is now fully prepared; awaiting an external reviewer. No product code changed in any of these.
 
+READ-ONLY FREEZE CONFIRMED (2026-07-26). Owner's decision: stick with the original plan — Phase 1 (read-only) is FROZEN; do NOT add transaction functionality until the external audit of this version is complete and findings are resolved. Only then create a new branch for Phase 2 (transactions/approve/permit/swap/bridge/mainnet). Doc-only fix this pass: `SECURITY.md` disclosure route made functional (was a placeholder) — primary channel is GitHub Private Vulnerability Reporting (maintainer to enable under Settings → Advanced Security). Final freeze verification all green: lint · typecheck (all+e2e) · unit 85 · forbidden 0 · secrets 0 · build · csp · bundle 37/0/0 · audit 0; Playwright 38/38 (owner, unchanged code). This is the frozen artifact for external review.
+
 ## Session 9 — FIRST LIVE DEPLOYMENT (2026-07-26)
 
 ## Session 9 — FIRST LIVE DEPLOYMENT (2026-07-26)
