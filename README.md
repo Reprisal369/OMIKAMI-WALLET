@@ -1,12 +1,35 @@
 # OMIKAMI WALLET
 
-Non-custodial Ethereum wallet dashboard. **Read-only phase-one preview on Ethereum Sepolia (testnet).**
+Non-custodial, open-source Ethereum wallet & DeFi dashboard. **Read-only, on the
+Ethereum Sepolia testnet.**
 
-OMIKAMI WALLET never asks for a seed phrase or private key, never signs on your behalf, and never takes custody of funds. All signing happens inside your own wallet. This build additionally has **all transaction features disabled**: no sending, no approvals, no swaps, no message signing.
+OMIKAMI WALLET never asks for a seed phrase or private key, never signs on your
+behalf, and never takes custody of funds — all signing happens inside your own
+wallet. This build additionally has **all transaction features disabled**: no
+sending, no approvals, no permits, no swaps, no bridges, no staking, no message
+signing, no mainnet.
+
+**Live preview:** https://omikami-wallet.pages.dev — read-only, Sepolia only.
+Connect any injected wallet (MetaMask / Rabby / Coinbase Wallet extension).
 
 ## Status
 
-Phase one read-only shell. See `PROJECT_STATE.md` for exact current status, `PROJECT_PLAN.md` for the roadmap, and `MAINNET_CHECKLIST.md` for the 12 gates required before any mainnet feature is enabled.
+**Frozen at `v0.5.0-readonly-audit-candidate` (pre-release), prepared for an
+external security review.** No transaction functionality will be added until that
+review is complete and its findings are resolved. See `PROJECT_STATE.md` for the
+exact current state and `CHANGELOG.md` for the version history.
+
+## What it does (all read-only)
+
+- Connect an injected wallet (EIP-1193 / EIP-6963), with checksummed,
+  poisoning-aware address display
+- Native + verified ERC-20 balances (Sepolia USDC); user-configurable RPC endpoint
+- ENS name display
+- Recent ERC-20 activity via `eth_getLogs`, with unknown-token quarantine
+- Allowance dashboard: spender, current allowance, unlimited-allowance warning,
+  risk badge, verification source
+- Transfer **preview** with OMIKAMI SHIELD checks — signing is disabled build-wide
+- OMIKAMI SHIELD security-status panel
 
 ## Run locally
 
@@ -21,21 +44,31 @@ pnpm --filter @omikami/web dev
 Checks:
 
 ```bash
-pnpm lint        # ESLint
-pnpm typecheck   # strict TypeScript across all packages
-pnpm test        # unit tests (vitest)
-pnpm build       # production build (static export in apps/web/out)
-pnpm audit       # dependency audit (pnpm audit)
+pnpm verify   # lint · typecheck · typecheck:e2e · unit · forbidden · secrets · build · bundle · audit
+pnpm e2e      # Playwright end-to-end (desktop + mobile)
 ```
+
+Latest results (clean build): unit **85** · e2e **38** · `pnpm audit` **0
+vulnerabilities** · forbidden-pattern, secret and bundle gates clean.
 
 ## Security
 
-Read `SECURITY.md` before reporting anything. Key promises: no seed phrases, no private keys, no custody, no analytics, no unlimited approvals by default (approvals are entirely disabled in this phase).
+Read `SECURITY.md` before reporting anything, and report vulnerabilities privately
+via the repository **Security** tab (GitHub Private Vulnerability Reporting) — not
+public issues. Key promises: no seed phrases, no private keys, no custody, no
+analytics, and no transaction/signing path of any kind in this phase.
+
+External reviewers: start with `SECURITY_AUDIT_SCOPE.md` and
+`docs/reviews/REVIEWER_HANDOFF.md`.
 
 ## Documentation
 
-`PROJECT_PLAN.md` · `ARCHITECTURE.md` · `THREAT_MODEL.md` · `SECURITY.md` · `DECENTRALIZATION.md` · `MAINNET_CHECKLIST.md` · `PROJECT_STATE.md`
+- Overview & plan: `PROJECT_PLAN.md` · `ARCHITECTURE.md` · `PROJECT_STATE.md` · `CHANGELOG.md`
+- Security: `SECURITY.md` · `THREAT_MODEL.md` · `PRIVACY.md` · `SECURITY_HEADERS.md` · `INCIDENT_RESPONSE.md`
+- Audit: `SECURITY_AUDIT_SCOPE.md` · `docs/reviews/AUDIT_PACKAGE_v0.5.0.md` · `docs/reviews/EXTERNAL_AUDIT_PREP.md` · `docs/reviews/REVIEWER_HANDOFF.md`
+- Process: `CONTRIBUTING.md` · `DEPENDENCY_POLICY.md` · `RELEASE_CHECKLIST.md` · `GITHUB_SETUP.md`
+- Decentralization & mainnet gates: `DECENTRALIZATION.md` · `MAINNET_CHECKLIST.md`
 
-## Licence
+## License
 
-Not yet chosen (human decision pending — see PROJECT_PLAN.md assumption A3).
+[MIT](LICENSE).
