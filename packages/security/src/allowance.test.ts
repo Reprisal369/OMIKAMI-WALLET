@@ -37,6 +37,17 @@ describe('isUnlimitedAllowance', () => {
     expect(isUnlimitedAllowance(1_000000n)).toBe(false);
     expect(isUnlimitedAllowance(0n)).toBe(false);
   });
+
+  it('is exact at the threshold boundary', () => {
+    expect(isUnlimitedAllowance(UNLIMITED_THRESHOLD)).toBe(true);
+    expect(isUnlimitedAllowance(UNLIMITED_THRESHOLD - 1n)).toBe(false);
+    // Just-below-threshold on a verified token classifies as Limited, not Unlimited.
+    expect(classifyAllowanceRisk({ value: UNLIMITED_THRESHOLD - 1n, tokenVerified: true })).toEqual({
+      status: 'info',
+      label: 'Limited',
+      unlimited: false,
+    });
+  });
 });
 
 describe('classifyAllowanceRisk', () => {

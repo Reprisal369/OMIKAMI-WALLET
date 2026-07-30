@@ -58,6 +58,18 @@ describe('formatTokenAmount', () => {
   it('handles very large balances', () => {
     expect(formatTokenAmount(123456789000000n, 6)).toBe('123456789');
   });
+
+  it('trims trailing zeros but keeps interior zeros', () => {
+    expect(formatTokenAmount(1050000n, 6)).toBe('1.05');
+    expect(formatTokenAmount(1000010n, 6)).toBe('1.00001');
+  });
+
+  it('keeps exactly six fractional digits without a truncation marker', () => {
+    expect(formatTokenAmount(1234560000000000000n, 18)).toBe('1.23456');
+    expect(formatTokenAmount(1234567000000000000n, 18)).toBe('1.234567');
+    // A seventh significant fractional digit triggers the explicit ≈ marker.
+    expect(formatTokenAmount(1234567800000000000n, 18)).toBe('≈ 1.234567');
+  });
 });
 
 describe('sanitizeTokenText', () => {
