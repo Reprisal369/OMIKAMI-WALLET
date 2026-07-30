@@ -24,9 +24,9 @@
   },
   "devDependencies": {
     "@playwright/test": "1.62.0",
-    "@types/node": "26.1.1",
+    "@types/node": "26.1.2",
     "eslint": "10.8.0",
-    "prettier": "3.9.5",
+    "prettier": "3.9.6",
     "typescript": "5.9.3",
     "typescript-eslint": "8.65.0",
     "vitest": "4.1.10"
