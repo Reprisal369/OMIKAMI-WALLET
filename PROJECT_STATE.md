@@ -11,7 +11,9 @@ Acting as an external app-sec auditor, reviewed the high-risk files and wrote `d
 - **L3/L5/I3** — docs: DNS-rebinding limitation (rpc.ts), custom-RPC/CSP UX note (SECURITY_HEADERS.md), corrected stale balance-transport note (this file, item 4 above).
 - **L2 (ENS-on-mainnet) and I2 (address book)** intentionally NOT changed pre-audit (design choice / new feature).
 
-Version bumped **0.5.0 → 0.5.1** (product code changed); CHANGELOG [0.5.1] added. Post-remediation gates all green: lint · typecheck (all+e2e) · unit **86** · forbidden (M1 active) · secrets · build · csp · bundle 37/0/0 · audit 0. Owner to re-run `pnpm e2e` (expect 38/38; no test-affecting UI change) and, after merge, tag **v0.5.1** as the remediated audit candidate. Still strictly read-only.
+Version bumped **0.5.0 → 0.5.1** (product code changed); CHANGELOG [0.5.1] added. Post-remediation gates all green: lint · typecheck (all+e2e) · unit **86** · forbidden (M1 active) · secrets · build · csp · bundle 37/0/0 · audit 0. Merged via PR #10 (merge commit `d27f14f`); tag **`v0.5.1`** on `c32d255` sits in main history. Owner re-ran `pnpm e2e` → **38/38**.
+
+Doc alignment to v0.5.1 (docs-only): README status, `SECURITY_AUDIT_SCOPE.md`, `docs/reviews/REVIEWER_HANDOFF.md` (tag → v0.5.1, commit → c32d255, pre-audit report added to the send-list) and a v0.5.1 banner atop `AUDIT_PACKAGE_v0.5.0.md`. Reviewers now review at tag **`v0.5.1`**. Still strictly read-only. OPEN (later): two Dependabot PRs (#6 npm-minor green, #11 npm-patch red) to triage; optional GitHub Release for v0.5.1.
 
 ## Session 10 — EXTERNAL AUDIT PACKAGE (2026-07-26)
 

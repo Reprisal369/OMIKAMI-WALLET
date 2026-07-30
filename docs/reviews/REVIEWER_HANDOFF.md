@@ -7,11 +7,14 @@ the "send this" page; the depth lives in `SECURITY_AUDIT_SCOPE.md` and
 ## What to send the reviewer
 
 1. Repository: `https://github.com/Reprisal369/OMIKAMI-WALLET` (public, MIT).
-2. Release / tag: **`v0.5.0-readonly-audit-candidate`** (pre-release).
-3. Audited product-code commit: `760c88f8ed9ad094307adb768e6527f5d099e884`.
+2. Release / tag: **`v0.5.1`** (read-only audit candidate, after internal
+   pre-audit hardening).
+3. Audited product-code commit: `c32d255` (tag `v0.5.1`).
 4. Live preview: `https://omikami-wallet.pages.dev` (read-only, Sepolia testnet).
-5. These three docs: `SECURITY_AUDIT_SCOPE.md`,
-   `docs/reviews/AUDIT_PACKAGE_v0.5.0.md`, `docs/reviews/EXTERNAL_AUDIT_PREP.md`.
+5. These docs: `SECURITY_AUDIT_SCOPE.md`, `docs/reviews/AUDIT_PACKAGE_v0.5.0.md`,
+   `docs/reviews/EXTERNAL_AUDIT_PREP.md`, and the internal pre-audit report
+   `docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md` (findings + remediation applied in
+   v0.5.1).
 
 No credentials, secrets, or test accounts are provided or needed — the reviewer
 uses their own injected wallet on Sepolia (the app never receives keys).
@@ -35,7 +38,7 @@ uses their own injected wallet on Sepolia (the app never receives keys).
 > prepared a complete audit package so you can start immediately.
 >
 > - Repo: https://github.com/Reprisal369/OMIKAMI-WALLET
-> - Release/tag to review: `v0.5.0-readonly-audit-candidate`
+> - Release/tag to review: `v0.5.1`
 > - Live preview: https://omikami-wallet.pages.dev
 > - Scope + evidence: `SECURITY_AUDIT_SCOPE.md` and
 >   `docs/reviews/AUDIT_PACKAGE_v0.5.0.md` in the repo
