@@ -82,6 +82,13 @@ The Settings panel lets a user point the app at their own Sepolia RPC. That is a
 `generate-csp.mjs` hardcodes option 1. To use option 2, edit `CONNECT_SRC` in
 that script (swap the two hosts for `'https:'`) and regenerate.
 
+> UX note (internal pre-audit L5): under option 1 the Settings custom-RPC field
+> is present but any value the user sets is silently blocked by `connect-src` on
+> the live site, which can confuse users. Preferred future handling on a
+> strict-CSP deployment: hide/disable the field or show an in-UI note that custom
+> endpoints require a self-hosted build. Tracked as a UX/polish item, not a
+> vulnerability.
+
 ## Per-host variants
 
 ### Cloudflare Pages / Netlify — `_headers`

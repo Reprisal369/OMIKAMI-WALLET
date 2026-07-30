@@ -15,9 +15,33 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-- Preparing the production-ready development workflow: GitHub repository, active
-  CI on every commit, branch protection, CSP at the hosting layer, and external
-  code-audit preparation. No new wallet features until this is in place.
+- Awaiting external security review of v0.5.1. No new wallet features until then.
+
+## [0.5.1] — 2026-07-26 — Internal pre-audit hardening
+
+Hardening applied after the internal pre-audit (`docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md`).
+No new features, no architectural changes; the wallet remains strictly read-only.
+
+### Security
+- **Read-only invariant is now an enforced build gate (M1).** The forbidden-pattern
+  gate fails on any wallet write/sign/switch API in source
+  (`useSendTransaction`, `useWriteContract`, `useSignMessage`, `writeContract`,
+  `sendTransaction`, `switchChain`, …). The read-only promise is no longer only a
+  convention.
+- **Token-name spoofing defense (L4).** `sanitizeTokenText` now strips Unicode
+  bidirectional/format and zero-width control characters (new unit test).
+
+### Changed
+- **Balance reads gated to supported chains (L1).** On an unsupported network the
+  app defers to the wrong-network warning instead of attempting a read that errors.
+
+### Docs
+- Documented the RPC-URL DNS-rebinding limitation (L3), the custom-RPC/CSP UX
+  trade-off (L5), and corrected a stale note about balance transports (I3).
+
+### Verified
+- lint · typecheck (all + e2e) · unit 86 · forbidden-pattern (with M1) · secrets ·
+  build · bundle 37/0/0 · audit 0 — all green.
 
 ## [0.5.0] — 2026-07-25 — Read-only allowance dashboard
 

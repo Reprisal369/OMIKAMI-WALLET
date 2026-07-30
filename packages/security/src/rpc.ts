@@ -22,6 +22,15 @@ export interface RpcValidation {
 }
 
 // Hosts / ranges that must never be used as a "public" RPC endpoint.
+//
+// LIMITATION (internal pre-audit L3): this blocks LITERAL private/loopback/
+// link-local/CGNAT IPs and IPv6 literals, but a browser cannot resolve DNS, so
+// a public hostname that resolves to a private address (DNS rebinding) is not
+// caught here. This is client-side only (the user's own browser fetching the
+// user's own configured endpoint), not server-side SSRF. On the deployed site
+// the strict CSP `connect-src` (SECURITY_HEADERS.md) blocks any non-allowlisted
+// host outright, which is the real runtime control; this check is defense in
+// depth for self-hosted/dev builds.
 function isInternalHost(host: string): boolean {
   const h = host.toLowerCase();
   if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local')) return true;

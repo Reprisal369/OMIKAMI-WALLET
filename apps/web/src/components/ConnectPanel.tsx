@@ -60,9 +60,17 @@ export function ConnectPanel() {
     return () => clearTimeout(timer);
   }, [isPending]);
 
+  // Native balance is read ONLY on a supported chain (internal pre-audit L1).
+  // On an unsupported network the app defers cleanly to the wrong-network
+  // warning instead of attempting a read that would error in the UI.
   const balance = useBalance({
     address: account.address,
-    query: { enabled: Boolean(account.address) },
+    query: {
+      enabled:
+        Boolean(account.address) &&
+        account.chainId !== undefined &&
+        isSupportedChain(account.chainId),
+    },
   });
 
   // ENS is resolved on Ethereum mainnet (read-only), where ENS lives.
