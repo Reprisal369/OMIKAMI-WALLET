@@ -69,4 +69,12 @@ describe('sanitizeTokenText', () => {
     expect(sanitizeTokenText('  A   B  ')).toBe('A B');
     expect(sanitizeTokenText('X'.repeat(40))).toBe('X'.repeat(32) + '…');
   });
+
+  it('strips Unicode bidi / zero-width control characters (L4)', () => {
+    expect(sanitizeTokenText('AB\u202ECD')).toBe('ABCD'); // RLO (reversed-text spoof)
+    expect(sanitizeTokenText('\u202DUSDC\u202C')).toBe('USDC'); // LRO + PDF
+    expect(sanitizeTokenText('US\u200BDC')).toBe('USDC'); // zero-width space
+    expect(sanitizeTokenText('\uFEFFUSDC')).toBe('USDC'); // BOM
+    expect(sanitizeTokenText('A\u2066B\u2069C')).toBe('ABC'); // bidi isolates
+  });
 });

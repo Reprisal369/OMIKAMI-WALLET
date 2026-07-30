@@ -71,6 +71,17 @@ export function sanitizeTokenText(input: string, maxLength = 32): string {
   for (const ch of input) {
     const code = ch.codePointAt(0) ?? 0;
     if (code < 32 || code === 127 || ch === '<' || ch === '>') continue;
+    // Strip Unicode bidirectional/format & zero-width controls (internal
+    // pre-audit L4): these are invisible but can visually reorder or hide
+    // characters, spoofing an untrusted token name/symbol.
+    if (
+      (code >= 0x200b && code <= 0x200f) || // zero-width + LRM/RLM
+      (code >= 0x202a && code <= 0x202e) || // bidi embeddings/overrides
+      (code >= 0x2066 && code <= 0x2069) || // bidi isolates
+      code === 0xfeff // zero-width no-break space / BOM
+    ) {
+      continue;
+    }
     cleaned += ch;
   }
   cleaned = cleaned.replace(/\s+/g, ' ').trim();

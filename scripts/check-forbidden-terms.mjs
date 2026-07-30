@@ -22,6 +22,11 @@ const RULES = [
   [/type\s*=\s*["'](password|file)["']/, 'password/file input requires threat-model review before merge (A1)'],
   [/\bkeystore\b/i, 'keystore / JSON-wallet import is impossible by design (A1)'],
   [/\beval\s*\(|new\s+Function\s*\(/, 'dynamic code execution forbidden'],
+  // Read-only invariant (internal pre-audit M1): no wallet write/sign/switch
+  // API may appear in source. This makes the read-only promise a failing build
+  // gate, not just a convention. Adding any of these requires a threat-model
+  // sign-off and lifting the read-only phase.
+  [/\b(useSendTransaction|useWriteContract|useContractWrite|useSignMessage|useSignTypedData|useSwitchChain|writeContract|sendTransaction|signMessage|signTypedData|switchChain|prepareTransactionRequest)\b/, 'wallet write/sign/switch API forbidden — read-only invariant (M1)'],
 ];
 
 // The ONE reviewed exception permitted to use browser storage (THREAT_MODEL C1c).

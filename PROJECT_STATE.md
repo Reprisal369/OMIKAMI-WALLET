@@ -1,6 +1,19 @@
 # OMIKAMI WALLET — PROJECT_STATE.md
 
-Last updated: 2026-07-26 (session 10: EXTERNAL AUDIT PACKAGE assembled for v0.5.0)
+Last updated: 2026-07-26 (session 11: INTERNAL PRE-AUDIT + hardening → v0.5.1)
+
+## Session 11 — INTERNAL PRE-AUDIT + HARDENING (2026-07-26)
+
+Acting as an external app-sec auditor, reviewed the high-risk files and wrote `docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md`. Result: **no Critical, no High**; read-only guarantee holds. One Medium (M1) + Low/Info items. Then implemented ONLY the recommended hardening (no new features, no architecture change, still read-only):
+- **M1** — read-only invariant is now an ENFORCED build gate: `check-forbidden-terms.mjs` fails on any wallet write/sign/switch API (useSendTransaction/useWriteContract/useSignMessage/writeContract/sendTransaction/switchChain/…). Proven to catch a probe.
+- **L1** — `ConnectPanel` `useBalance` gated by `isSupportedChain` (no read/error on unsupported chains).
+- **L4** — `sanitizeTokenText` strips Unicode bidi/format/zero-width controls; new unit test (token-registry now 11).
+- **L3/L5/I3** — docs: DNS-rebinding limitation (rpc.ts), custom-RPC/CSP UX note (SECURITY_HEADERS.md), corrected stale balance-transport note (this file, item 4 above).
+- **L2 (ENS-on-mainnet) and I2 (address book)** intentionally NOT changed pre-audit (design choice / new feature).
+
+Version bumped **0.5.0 → 0.5.1** (product code changed); CHANGELOG [0.5.1] added. Post-remediation gates all green: lint · typecheck (all+e2e) · unit **86** · forbidden (M1 active) · secrets · build · csp · bundle 37/0/0 · audit 0. Owner to re-run `pnpm e2e` (expect 38/38; no test-affecting UI change) and, after merge, tag **v0.5.1** as the remediated audit candidate. Still strictly read-only.
+
+## Session 10 — EXTERNAL AUDIT PACKAGE (2026-07-26)
 
 ## Session 10 — EXTERNAL AUDIT PACKAGE (2026-07-26)
 
@@ -235,7 +248,7 @@ Local runtime on owner machine: Node 24.18.0 standalone zip at `%USERPROFILE%\Do
 1. CSP not yet enforced: static export cannot emit HTTP headers; dev mode needs unsafe-eval. Must be applied at hosting layer + verified in Gate 7. OPEN.
 2. Gate 1: THREAT_MODEL sections A/B/C/F CONDITIONALLY APPROVED by owner (2026-07-13) for strictly read-only phase one; full approval blocked on implementation verification (CI, headers, tests must exist and be inspected). Hardening backlog: docs/reviews/GATE1_THREAT_MODEL_REVIEW_2026-07-13.md. Honest status: CI pipeline, CSP headers, e2e tests, secret scanning, SBOM do NOT exist yet — all scans so far were manual, one-off. OPEN until implemented and verified.
 3. wagmi `useConnect` timeout is a 30 s UI hint, not a hard abort — wallet popup may still resolve later. Acceptable for read-only phase; revisit before send flow.
-4. If the connected wallet is on an unsupported chain, balance reads fail by design (no transport); UI shows the wrong-network warning. Intended.
+4. If the connected wallet is on an unsupported chain, the native-balance read is now DISABLED at query level (internal pre-audit L1: `useBalance` gated by `isSupportedChain`), and the UI shows only the wrong-network warning. (Superseded note: a mainnet transport IS configured for ENS, so this is no longer "no transport" — the read is deliberately not enabled rather than failing.)
 5. Two undeletable empty `_tmp_*` files at repo root (artifacts of a failed pnpm run on the mounted filesystem; sandbox lacked delete permission). Safe to delete manually.
 6. Playwright e2e, CONTRIBUTING.md, PRIVACY.md, INCIDENT_RESPONSE.md, DEPENDENCY_POLICY.md, RELEASE_CHECKLIST.md, LICENSE not yet authored (planned; see pending work).
 7. viem bundles reference URLs (default RPCs, explorers, 4byte directory) — runtime requests are limited to the list in "External requests" below, but a bundle-level allowlist check should be added in CI (Gate 5 item).
