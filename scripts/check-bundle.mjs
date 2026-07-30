@@ -22,6 +22,11 @@ const ALLOWED_SUFFIXES = [
   // This app renders NO avatars and makes NO runtime requests to these hosts;
   // reviewed + documented 2026-07-13 (PROJECT_STATE session 4).
   'ipfs.io', 'arweave.net',
+  // viem's mainnet chain-definition default RPC constant. viem 2.55.10 changed
+  // this to ethereum.reth.rs; it is bundled as a string but NEVER contacted,
+  // because `apps/web/src/lib/wagmi.ts` PINS our mainnet transport to
+  // eth.merkle.io. Reviewed 2026-07-26 (Dependabot triage, internal pre-audit).
+  'reth.rs',
   // RFC 2606 reserved example domains — used only as input placeholder text,
   // never a real endpoint. Reviewed 2026-07-13 (PROJECT_STATE session 4).
   'example.com', 'example.org',
