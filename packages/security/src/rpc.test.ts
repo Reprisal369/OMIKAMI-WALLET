@@ -54,6 +54,27 @@ describe('validateRpcUrl', () => {
     expect(validateRpcUrl('https://[::1]').reason).toBe('internal-host');
   });
 
+  it('rejects ALL IPv6 literals incl. public ones (fails closed, documented L3/I4)', () => {
+    expect(validateRpcUrl('https://[2606:4700:4700::1111]').reason).toBe('internal-host');
+  });
+
+  it('rejects malformed / non-parseable URLs', () => {
+    expect(validateRpcUrl('https://').reason).toBe('not-a-url');
+    expect(validateRpcUrl('not a url at all').reason).toBe('not-a-url');
+    expect(validateRpcUrl('rpc.example.com').reason).toBe('not-a-url');
+  });
+
+  it('is case-insensitive about internal hosts and strips the port first', () => {
+    expect(validateRpcUrl('https://LOCALHOST').reason).toBe('internal-host');
+    expect(validateRpcUrl('https://192.168.1.1:8545').reason).toBe('internal-host');
+  });
+
+  it('accepts a public host with a port and preserves path + query when normalizing', () => {
+    const r = validateRpcUrl('https://rpc.example.com:8545/v1/key?net=sepolia');
+    expect(r.valid).toBe(true);
+    expect(r.normalized).toBe('https://rpc.example.com:8545/v1/key?net=sepolia');
+  });
+
   it('rejects bare hostnames without a dot', () => {
     expect(validateRpcUrl('https://intranet').reason).toBe('not-public');
   });
