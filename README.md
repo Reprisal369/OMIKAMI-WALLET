@@ -14,10 +14,12 @@ Connect any injected wallet (MetaMask / Rabby / Coinbase Wallet extension).
 
 ## Status
 
-**Frozen at `v0.5.0-readonly-audit-candidate` (pre-release), prepared for an
-external security review.** No transaction functionality will be added until that
-review is complete and its findings are resolved. See `PROJECT_STATE.md` for the
-exact current state and `CHANGELOG.md` for the version history.
+**Frozen at `v0.5.1` (read-only audit candidate), prepared for an external
+security review.** An internal pre-audit has been completed and its hardening
+applied (`docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md`). No transaction
+functionality will be added until the external review is complete and its
+findings are resolved. See `PROJECT_STATE.md` for the exact current state and
+`CHANGELOG.md` for the version history.
 
 ## What it does (all read-only)
 
