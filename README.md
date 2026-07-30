@@ -70,6 +70,8 @@ External reviewers: start with `SECURITY_AUDIT_SCOPE.md` and
 - Audit: `SECURITY_AUDIT_SCOPE.md` · `docs/reviews/AUDIT_PACKAGE_v0.5.0.md` · `docs/reviews/EXTERNAL_AUDIT_PREP.md` · `docs/reviews/REVIEWER_HANDOFF.md`
 - Process: `CONTRIBUTING.md` · `DEPENDENCY_POLICY.md` · `RELEASE_CHECKLIST.md` · `GITHUB_SETUP.md`
 - Decentralization & mainnet gates: `DECENTRALIZATION.md` · `MAINNET_CHECKLIST.md`
+- Future design (not implemented): `docs/design/PHASE_2_TRANSACTIONS.md` — the
+  transaction phase design & threat model (kept read-only until the audit passes)
 
 ## License
 
