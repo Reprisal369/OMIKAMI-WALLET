@@ -15,7 +15,26 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-- Awaiting external security review of v0.5.1. No new wallet features until then.
+- Awaiting external security review. No new wallet features until then.
+
+## [0.5.2] — 2026-07-26 — Pin RPC transports (supply-chain hardening)
+
+Dependabot triage follow-up. No new features; still strictly read-only.
+
+### Security
+- **Explicitly pin the app's RPC transports** in `wagmi.ts` (Sepolia default →
+  `11155111.rpc.thirdweb.com`, mainnet/ENS → `eth.merkle.io`) instead of relying
+  on viem's built-in chain defaults. viem 2.55.10 changed the mainnet default RPC
+  to `ethereum.reth.rs`; pinning keeps the app's outbound host under our control
+  and aligned with the CSP `connect-src`, the bundle allowlist, and PRIVACY.md,
+  so a future dependency bump can no longer silently move our egress.
+- Bundle allowlist: `reth.rs` added as a **bundled-but-never-contacted** viem
+  chain constant (documented), since our transport is pinned.
+
+### Notes
+- This unblocks the pending Dependabot patch update (viem 2.55.10 / wagmi 3.7.4 /
+  react 19.2.8 / next 16.2.12, …): with the transport pinned and the constant
+  allowlisted, the bundle gate passes and runtime egress is unchanged.
 
 ## [0.5.1] — 2026-07-26 — Internal pre-audit hardening
 

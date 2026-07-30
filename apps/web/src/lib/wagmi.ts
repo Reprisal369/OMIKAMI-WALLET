@@ -25,6 +25,19 @@ import { readCustomRpcUrl } from './rpc-storage';
  * viem's built-in default. Mainnet always uses the default (ENS only).
  * Rebuilt on demand so a Settings change takes effect after a reload.
  */
+/**
+ * Explicitly PINNED default RPC endpoints (internal pre-audit follow-up /
+ * supply-chain hardening). We do NOT rely on viem's built-in chain defaults for
+ * our transports: viem periodically changes them (e.g. viem 2.55.10 switched the
+ * mainnet default from eth.merkle.io to ethereum.reth.rs), which would silently
+ * move our outbound host and break the CSP `connect-src` allowlist. Pinning here
+ * keeps the app's egress hosts under our control, matching PRIVACY.md, the bundle
+ * allowlist, and the CSP. A user-supplied custom Sepolia endpoint still overrides
+ * the Sepolia default.
+ */
+const SEPOLIA_DEFAULT_RPC = 'https://11155111.rpc.thirdweb.com';
+const MAINNET_RPC = 'https://eth.merkle.io'; // ENS name resolution only
+
 export function buildWagmiConfig() {
   const custom = readCustomRpcUrl();
   return createConfig({
@@ -32,8 +45,8 @@ export function buildWagmiConfig() {
     connectors: [injected()],
     storage: null,
     transports: {
-      [sepolia.id]: http(custom ?? undefined),
-      [mainnet.id]: http(),
+      [sepolia.id]: http(custom ?? SEPOLIA_DEFAULT_RPC),
+      [mainnet.id]: http(MAINNET_RPC),
     },
   });
 }
