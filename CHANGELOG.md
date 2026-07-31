@@ -17,6 +17,31 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Awaiting external security review. No new wallet features until then.
 
+## [0.5.4] — 2026-07-31 — Accessibility pass (WCAG 2.1/2.2 AA)
+
+UI-only accessibility improvements from an internal a11y review
+(`docs/reviews/ACCESSIBILITY_REVIEW.md`). No functional, security, transport,
+CSP, or read-only-invariant changes; still strictly read-only and testnet-only.
+
+### Accessibility
+- Added accessible names (`aria-label`) to the icon/short explorer & transaction
+  links (including the bare "↗" links) so screen readers announce their purpose.
+- Added a page `<h1>` (the wordmark) and a "Skip to main content" link; gave
+  `<main>` an `id` target.
+- Added a baseline keyboard focus ring (`:where(...):focus-visible` in
+  `globals.css`) so small inline controls (copy, retry, explorer links) show
+  focus on the dark theme.
+- Linked the Settings RPC field to its help/error text via `aria-describedby`
+  and `aria-invalid`.
+- Raised the `--omi-danger` token to `#d46a6a` so small red text clears the
+  4.5:1 contrast threshold (was 4.16:1) even over its tinted background.
+- Enlarged small tap targets (copy buttons, "↗" links) to ≥24 px, and added a
+  polite live announcement to the copy buttons.
+
+### Verified
+- Gates green: lint, typecheck (all + e2e), unit, forbidden, secrets, build,
+  bundle, CSP. (e2e runs as a required CI check on the PR.)
+
 ## [0.5.3] — 2026-07-27 — Static-analysis (CodeQL) findings addressed
 
 Free-tools security review (GitHub CodeQL). No new features; still read-only.

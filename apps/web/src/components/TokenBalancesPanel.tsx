@@ -116,6 +116,7 @@ export function TokenBalancesPanel() {
                       href={explorer}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`View ${sanitizeTokenText(token.symbol)} contract on block explorer`}
                       className="text-xs text-[var(--omi-gold)] underline decoration-[var(--omi-gold-dim)] underline-offset-4"
                     >
                       Explorer

@@ -191,7 +191,9 @@ export function ConnectPanel() {
             {account.address && (
               <button
                 type="button"
-                className="rounded border border-[var(--omi-border)] px-2 py-0.5 text-xs text-[var(--omi-muted)] hover:text-[var(--omi-text)]"
+                aria-live="polite"
+                aria-label={copied ? 'Address copied to clipboard' : 'Copy address to clipboard'}
+                className="inline-flex min-h-[24px] items-center rounded border border-[var(--omi-border)] px-2 py-0.5 text-xs text-[var(--omi-muted)] hover:text-[var(--omi-text)]"
                 onClick={() => {
                   void navigator.clipboard.writeText(account.address as string).then(() => {
                     setCopied(true);

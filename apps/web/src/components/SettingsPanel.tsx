@@ -49,7 +49,7 @@ export function SettingsPanel() {
 
   return (
     <Panel title="Settings — custom RPC endpoint">
-      <p className="mb-3 text-sm text-[var(--omi-muted)]">
+      <p id="rpc-help" className="mb-3 text-sm text-[var(--omi-muted)]">
         Optionally use your own Ethereum Sepolia RPC endpoint (for example your own node, or a
         provider that returns full log history). Must be a public{' '}
         <span className="font-mono">https://</span> URL. Leave blank to use the built-in default.
@@ -66,6 +66,8 @@ export function SettingsPanel() {
         inputMode="url"
         autoComplete="off"
         spellCheck={false}
+        aria-describedby={error ? 'rpc-error rpc-help' : 'rpc-help'}
+        aria-invalid={error ? true : undefined}
         placeholder="https://your-sepolia-endpoint.example.com"
         value={value}
         onChange={(e) => {
@@ -77,7 +79,7 @@ export function SettingsPanel() {
       />
 
       {error && (
-        <p role="alert" className="mt-2 text-sm text-[var(--omi-warn)]">
+        <p id="rpc-error" role="alert" className="mt-2 text-sm text-[var(--omi-warn)]">
           {error}
         </p>
       )}

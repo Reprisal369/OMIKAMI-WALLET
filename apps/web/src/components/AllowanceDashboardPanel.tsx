@@ -240,6 +240,7 @@ export function AllowanceDashboardPanel() {
                           href={spenderUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label="View spender on block explorer"
                           className="text-xs text-[var(--omi-gold)] underline decoration-[var(--omi-gold-dim)] underline-offset-4"
                         >
                           Explorer
@@ -311,7 +312,8 @@ export function AllowanceDashboardPanel() {
                       href={tokenUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[var(--omi-gold)] underline decoration-[var(--omi-gold-dim)] underline-offset-4"
+                      aria-label="View token contract on block explorer"
+                      className="inline-flex min-h-[24px] min-w-[24px] items-center justify-center text-[var(--omi-gold)] underline decoration-[var(--omi-gold-dim)] underline-offset-4"
                     >
                       ↗
                     </a>
@@ -323,7 +325,8 @@ export function AllowanceDashboardPanel() {
                       href={spenderUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[var(--omi-gold)] underline decoration-[var(--omi-gold-dim)] underline-offset-4"
+                      aria-label="View spender on block explorer"
+                      className="inline-flex min-h-[24px] min-w-[24px] items-center justify-center text-[var(--omi-gold)] underline decoration-[var(--omi-gold-dim)] underline-offset-4"
                     >
                       ↗
                     </a>
