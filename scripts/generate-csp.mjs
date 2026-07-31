@@ -41,6 +41,11 @@ function walk(dir, acc = []) {
 
 function inlineScriptHashes(htmlFiles) {
   const hashes = new Set();
+  // NOTE (CodeQL "Bad HTML filtering regexp"): this is a BUILD-TIME extractor
+  // over our OWN Next.js static export (apps/web/out), used only to compute CSP
+  // hashes. It is NOT a security filter on untrusted HTML and never runs on
+  // user/attacker input, so the regex-vs-parser robustness concern does not
+  // apply here. Reviewed 2026-07-27 (dismissed as won't-fix with this rationale).
   const re = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
   for (const file of htmlFiles) {
     const html = readFileSync(file, 'utf8');

@@ -2,6 +2,16 @@
 
 Last updated: 2026-07-27 (session 12: FREEZE FOR EXTERNAL AUDIT — audit package finalized to v0.5.2)
 
+## Session 13 — FREE-TOOLS SECURITY REVIEW (2026-07-27) → v0.5.3
+
+Owner chose free tools instead of a paid audit for the read-only testnet build (sensible: no real funds at stake yet; paid audit deferred to pre-transactions/mainnet). Enabled GitHub **CodeQL** (default setup, JS/TS + Actions) and scanned the live site.
+
+Results:
+- **securityheaders.com: A+** on https://omikami-wallet.pages.dev (HSTS, CSP, Permissions-Policy, Referrer-Policy, nosniff, X-Frame-Options all present). External validation of the CSP work.
+- **CodeQL: 2 High.** (1) `send-preview.ts` polynomial regex (ReDoS) in `parseAmountInput` → **FIXED**: `\d*\.?\d*` → non-ambiguous `\d*(?:\.\d*)?` (same language, linear); added a 50k-char adversarial-input test (returns <100ms). (2) `scripts/generate-csp.mjs` "Bad HTML filtering regexp" → **DISMISS (won't-fix)**: build-time extractor over our own static export, never runs on untrusted input; rationale added as a code comment. Owner to dismiss #1 on GitHub with that reason.
+
+Version → 0.5.3; CHANGELOG added. All gates green: lint · typecheck (all+e2e) · unit **94** · forbidden · secrets · build · csp · bundle 37/0/0 · audit 0. Still strictly read-only. After merge: CodeQL re-scan should clear the ReDoS alert; then optionally tag v0.5.3 + release.
+
 ## Session 12 — FREEZE FOR EXTERNAL AUDIT (2026-07-27)
 
 Owner decision: FREEZE the codebase for the external review. No functional or security code changes before the audit. Only the audit package + outreach were finalized (docs).
