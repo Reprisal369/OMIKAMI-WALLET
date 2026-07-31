@@ -1,6 +1,18 @@
 # OMIKAMI WALLET — PROJECT_STATE.md
 
-Last updated: 2026-07-26 (session 11: INTERNAL PRE-AUDIT + hardening → v0.5.1)
+Last updated: 2026-07-27 (session 12: FREEZE FOR EXTERNAL AUDIT — audit package finalized to v0.5.2)
+
+## Session 12 — FREEZE FOR EXTERNAL AUDIT (2026-07-27)
+
+Owner decision: FREEZE the codebase for the external review. No functional or security code changes before the audit. Only the audit package + outreach were finalized (docs).
+
+Clean-room verification of the frozen candidate: fresh clone of `main` (commit **`7f12132`**, version **0.5.2**, viem 2.55.10) → lint · typecheck (all + e2e) · unit **93** · forbidden 0 · secrets 0 · build · csp · bundle 37/0/0 (eth.merkle.io pinned present, reth.rs allowlisted present) · audit 0 — ALL GREEN. Playwright e2e 38/38 confirmed by owner locally.
+
+Docs aligned to **v0.5.2** (docs-only): README status + results (unit 93), `SECURITY_AUDIT_SCOPE.md` (release/commit), `docs/reviews/REVIEWER_HANDOFF.md` (tag/commit), and the `AUDIT_PACKAGE_v0.5.0.md` banner (v0.5.2, updated deps + results). Audited product-code commit recorded as `7f12132`.
+
+NEXT (owner): merge this docs PR → tag **v0.5.2** → publish the v0.5.2 GitHub release → send the audit package to a reviewer (`REVIEWER_HANDOFF.md`). AFTER the audit starts: accessibility (a11y) review (improvements only). Gate 8 (reproducible builds) revisited after the audit unless it becomes a blocker. Still strictly read-only; no code frozen-period changes.
+
+## Session 11 — INTERNAL PRE-AUDIT + HARDENING (2026-07-26)
 
 ## Session 11 — INTERNAL PRE-AUDIT + HARDENING (2026-07-26)
 

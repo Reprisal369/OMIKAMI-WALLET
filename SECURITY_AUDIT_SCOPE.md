@@ -6,12 +6,14 @@ and `docs/reviews/EXTERNAL_AUDIT_PREP.md` (the reviewer onboarding).
 
 - **Product:** OMIKAMI WALLET — non-custodial, open-source, read-only Ethereum
   wallet & DeFi dashboard.
-- **Release under review:** `v0.5.1` (tag `v0.5.1`) — the read-only audit
-  candidate after the internal pre-audit hardening. (The prior tag
-  `v0.5.0-readonly-audit-candidate` is the pre-hardening baseline.)
-- **Audited product-code commit:** `c32d255` (tag `v0.5.1`). Baseline before
-  hardening was `760c88f8ed9ad094307adb768e6527f5d099e884`; the delta is
-  documented in `docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md`.
+- **Release under review:** `v0.5.2` (tag `v0.5.2`) — the read-only audit
+  candidate: internal pre-audit hardening applied, dependencies updated, and the
+  app's RPC egress explicitly pinned. (Earlier tags `v0.5.1` and
+  `v0.5.0-readonly-audit-candidate` are prior checkpoints.)
+- **Audited product-code commit:** `7f12132ef4197aa189bbc1e0931151a051132a97`
+  (tag `v0.5.2`). The hardening/pinning delta since the 0.5.0 baseline
+  (`760c88f8…`) is documented in `docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md` and
+  `CHANGELOG.md`.
 - **Network:** Ethereum Sepolia (testnet) only. No mainnet transactions.
 - **Deployment under review:** static export hosted on Cloudflare Pages
   (`https://omikami-wallet.pages.dev`) — a preview, not an announced launch.

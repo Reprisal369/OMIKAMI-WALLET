@@ -1,11 +1,13 @@
 # OMIKAMI WALLET — External audit package (v0.5.0)
 
-> **Update:** the current release to review is **`v0.5.1`** (tag `v0.5.1`), which
-> applies the internal pre-audit hardening documented in
-> `docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md`. This package documents the `v0.5.0`
-> baseline evidence; the architecture, threat-model mapping, dependency
-> inventory, egress, headers, and CI sections all still apply. Reproduce at tag
-> `v0.5.1` for the latest code.
+> **Update:** the current release to review is **`v0.5.2`** (tag `v0.5.2`, commit
+> `7f12132`). Since the 0.5.0 baseline this adds: the internal pre-audit hardening
+> (`docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md`), updated dependencies (react
+> 19.2.8, viem 2.55.10, wagmi 3.7.4, next 16.2.12, …), and explicitly pinned RPC
+> transports. Current clean-build results: unit **93**, e2e **38/38**, audit **0**,
+> all gates green. This package documents the `v0.5.0` baseline evidence; the
+> architecture, threat-model mapping, egress, headers, and CI sections all still
+> apply. Reproduce at tag `v0.5.2` for the latest code.
 
 Evidence package for an independent security review of the read-only release.
 Scope/exclusions: `SECURITY_AUDIT_SCOPE.md`. Reviewer onboarding:
