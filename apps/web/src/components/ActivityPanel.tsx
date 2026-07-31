@@ -180,6 +180,7 @@ export function ActivityPanel() {
                       href={txUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label="View transaction on block explorer"
                       className="text-[var(--omi-gold)] underline decoration-[var(--omi-gold-dim)] underline-offset-4"
                     >
                       Tx
@@ -219,6 +220,7 @@ export function ActivityPanel() {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label="View unknown token contract on block explorer"
                       className="text-[var(--omi-gold)] underline decoration-[var(--omi-gold-dim)] underline-offset-4"
                     >
                       Explorer

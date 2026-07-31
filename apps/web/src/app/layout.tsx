@@ -24,14 +24,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col px-4 sm:px-6">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded focus:border focus:border-[var(--omi-gold-dim)] focus:bg-[var(--omi-surface)] focus:px-3 focus:py-2 focus:text-sm focus:text-[var(--omi-gold)]"
+        >
+          Skip to main content
+        </a>
         <header className="flex flex-col gap-4 border-b border-[var(--omi-border)] py-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-baseline gap-2">
-            <span className="text-lg font-semibold tracking-[0.28em] text-[var(--omi-gold)]">
-              OMIKAMI
-            </span>
-            <span className="text-lg font-light tracking-[0.28em] text-[var(--omi-text)]">
-              WALLET
-            </span>
+            <h1 className="flex items-baseline gap-2 text-lg font-semibold">
+              <span className="tracking-[0.28em] text-[var(--omi-gold)]">OMIKAMI</span>
+              <span className="font-light tracking-[0.28em] text-[var(--omi-text)]">WALLET</span>
+            </h1>
             <span className="ml-2 rounded border border-[var(--omi-border)] px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-[var(--omi-muted)]">
               Read-only preview
             </span>
@@ -63,7 +67,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </ul>
           </nav>
         </header>
-        <main className="flex-1 py-6">
+        <main id="main" className="flex-1 py-6">
           <Providers>{children}</Providers>
         </main>
         <footer className="border-t border-[var(--omi-border)] py-4 text-xs text-[var(--omi-muted)]">

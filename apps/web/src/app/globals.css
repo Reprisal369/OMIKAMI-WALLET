@@ -12,7 +12,7 @@
   --omi-gold-dim: #6e5827;
   --omi-ok: #4aa46e;
   --omi-warn: #d69e2e;
-  --omi-danger: #c85050;
+  --omi-danger: #d46a6a;
 }
 
 html {
@@ -34,4 +34,17 @@ body {
 
 ::selection {
   background: rgba(201, 162, 74, 0.3);
+}
+
+/*
+ * Baseline keyboard-focus indicator for every interactive element. Uses
+ * :where() so specificity stays 0 — Tailwind's own focus-visible utilities
+ * (on ActionButton, inputs, select) still take precedence where present.
+ * This gives the small inline controls (copy, retry, explorer links) a
+ * visible focus ring on the dark theme (WCAG 2.4.7).
+ */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--omi-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
