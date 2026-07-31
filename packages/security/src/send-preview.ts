@@ -37,7 +37,11 @@ export interface AmountParse {
 export function parseAmountInput(input: string, decimals: number): AmountParse {
   const trimmed = input.trim();
   if (trimmed.length === 0) return { valid: false, reason: 'empty' };
-  if (trimmed === '.' || !/^\d*\.?\d*$/.test(trimmed)) return { valid: false, reason: 'format' };
+  // Non-ambiguous decimal shape (CodeQL: avoid the polynomial `\d*\.?\d*`).
+  // `\d*(?:\.\d*)?` accepts the same language — optional integer part, at most
+  // one dot, optional fraction — but with a single, unambiguous parse, so there
+  // is no super-linear backtracking on adversarial input.
+  if (trimmed === '.' || !/^\d*(?:\.\d*)?$/.test(trimmed)) return { valid: false, reason: 'format' };
 
   const [wholeRaw = '', fracRaw = ''] = trimmed.split('.');
   if (fracRaw.length > decimals) return { valid: false, reason: 'too-many-decimals' };

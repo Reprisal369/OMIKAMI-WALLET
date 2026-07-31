@@ -69,6 +69,17 @@ describe('parseAmountInput', () => {
     // A value that is not representable in float64 must survive exactly.
     expect(parseAmountInput('0.123456789012345678', 18).value).toBe(123456789012345678n);
   });
+
+  it('handles long/adversarial input quickly (no ReDoS) and rejects it', () => {
+    // The old ambiguous regex backtracked super-linearly here; the fixed one
+    // is linear. Assert it returns fast and rejects a long non-numeric tail.
+    const evil = '9'.repeat(50000) + '!';
+    const start = Date.now();
+    expect(parseAmountInput(evil, 18).reason).toBe('format');
+    expect(Date.now() - start).toBeLessThan(100);
+    // A long VALID integer still parses.
+    expect(parseAmountInput('1'.repeat(30), 0).value).toBe(BigInt('1'.repeat(30)));
+  });
 });
 
 describe('buildSendPreview — invariants', () => {

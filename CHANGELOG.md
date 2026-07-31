@@ -17,6 +17,26 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Awaiting external security review. No new wallet features until then.
 
+## [0.5.3] — 2026-07-27 — Static-analysis (CodeQL) findings addressed
+
+Free-tools security review (GitHub CodeQL). No new features; still read-only.
+
+### Security
+- **Fixed a polynomial regular expression (ReDoS, CodeQL High)** in
+  `parseAmountInput` (`packages/security/src/send-preview.ts`): the ambiguous
+  `\d*\.?\d*` amount check is replaced with the non-ambiguous `\d*(?:\.\d*)?`,
+  which accepts the same input with a single, linear parse. Impact was low
+  (client-side, the user's own input) but the pattern is now robust.
+- Documented why the CodeQL "Bad HTML filtering regexp" alert in
+  `scripts/generate-csp.mjs` is a non-issue (build-time extractor over our own
+  static export, never runs on untrusted input) — dismissed as won't-fix with a
+  written rationale in the code.
+
+### Verified
+- Live deployment scored **A+** on securityheaders.com (all headers present).
+- All gates green: lint, typecheck (all + e2e), unit, forbidden, secrets, build,
+  bundle, audit.
+
 ## [0.5.2] — 2026-07-26 — Pin RPC transports (supply-chain hardening)
 
 Dependabot triage follow-up. No new features; still strictly read-only.
