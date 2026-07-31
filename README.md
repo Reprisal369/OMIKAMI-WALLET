@@ -14,7 +14,7 @@ Connect any injected wallet (MetaMask / Rabby / Coinbase Wallet extension).
 
 ## Status
 
-**Frozen at `v0.5.2` (read-only audit candidate), prepared for an external
+**Frozen at `v0.5.4` (read-only audit candidate), prepared for an external
 security review.** An internal pre-audit has been completed and its hardening
 applied (`docs/reviews/INTERNAL_PRE_AUDIT_v0.5.0.md`); dependencies are current
 and the app's RPC egress is pinned. No transaction
