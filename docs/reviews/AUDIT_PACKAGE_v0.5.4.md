@@ -9,15 +9,15 @@ mapping, egress, headers, CI) and is referenced where relevant.
 |---|---|
 | **Product** | OMIKAMI WALLET — non-custodial, open-source Ethereum wallet & DeFi dashboard |
 | **Phase** | **Read-only**. No transactions, approvals, swaps, bridges, staking, message signing, or mainnet. |
-| **Release under review** | `v0.5.4` (tag `v0.5.4`) |
-| **Audited product-code commit** | `073253cdd8dcd87e298cf95461925ab2e1c81f83` (tag `v0.5.4`) |
+| **Release under review** | `v0.5.5` (tag `v0.5.5`) |
+| **Audited product-code commit** | `213cc04ebf1247a9fd861b4210c253c2317c658b` (tag `v0.5.5`) |
 | **Network** | Ethereum **Sepolia** (testnet) only |
 | **Repository** | https://github.com/Reprisal369/OMIKAMI-WALLET (public, MIT) |
 | **Live preview** | https://omikami-wallet.pages.dev (read-only, Sepolia) |
 | **License** | MIT (`LICENSE`) |
 | **Prepared** | 2026-08-08 |
 
-> The audited product code is the tree at tag `v0.5.4` (`073253c`). This package
+> The audited product code is the tree at tag `v0.5.5` (`213cc04`). This package
 > and the other review docs may sit on a later documentation-only commit; they
 > change no product behaviour relative to that commit.
 
@@ -28,7 +28,7 @@ mapping, egress, headers, CI) and is referenced where relevant.
 ```bash
 git clone https://github.com/Reprisal369/OMIKAMI-WALLET.git
 cd OMIKAMI-WALLET
-git checkout v0.5.4            # commit 073253c
+git checkout v0.5.5            # commit 213cc04
 corepack enable
 pnpm install --frozen-lockfile
 pnpm verify                    # lint · typecheck · typecheck:e2e · unit · forbidden · secrets · build · bundle · audit
@@ -150,7 +150,7 @@ review gate:
 
 ---
 
-## 7. Test evidence (verified for v0.5.4 / `073253c`)
+## 7. Test evidence (verified for v0.5.5 / `213cc04`)
 
 Reproduced from a clean build of the audited commit:
 
@@ -164,7 +164,7 @@ Reproduced from a clean build of the audited commit:
 | Secret-scan gate | clean |
 | Bundle allowlist | **36 files, 0 unknown hosts, 0 sourcemaps** |
 | CSP generation | 12 inline-script hashes; strict policy emitted to `_headers` |
-| CI on `073253c` | **10/10 checks passed** (verify, e2e, SBOM+hash, OSV scan, secret scan, CodeQL, …) |
+| CI on `213cc04` | **10/10 checks passed** (verify, e2e, SBOM+hash, OSV scan, secret scan, CodeQL, …) |
 
 **Independent free-tools security review (completed):**
 - GitHub **CodeQL**: **0 open alerts** — one High (ReDoS in the amount parser)
@@ -209,11 +209,11 @@ Responsible-disclosure contact: see `SECURITY.md`.
 
 ## 10. Package completeness checklist
 
-**Present and consistent (v0.5.4):**
+**Present and consistent (v0.5.5):**
 
 - [x] Cover package — this document (`AUDIT_PACKAGE_v0.5.4.md`)
-- [x] Scope & exclusions — `SECURITY_AUDIT_SCOPE.md` (→ v0.5.4 / `073253c`)
-- [x] Reviewer handoff + outreach — `docs/reviews/REVIEWER_HANDOFF.md` (→ v0.5.4)
+- [x] Scope & exclusions — `SECURITY_AUDIT_SCOPE.md` (→ v0.5.5 / `213cc04`)
+- [x] Reviewer handoff + outreach — `docs/reviews/REVIEWER_HANDOFF.md` (→ v0.5.5)
 - [x] Baseline evidence package — `docs/reviews/AUDIT_PACKAGE_v0.5.0.md` (repro §10–11, risk files §13)
 - [x] Reviewer onboarding — `docs/reviews/EXTERNAL_AUDIT_PREP.md`
 - [x] Threat model — `THREAT_MODEL.md` (A–G)
@@ -269,7 +269,7 @@ Responsible-disclosure contact: see `SECURITY.md`.
 > prepared a complete audit package so you can start immediately.
 >
 > - Repo: https://github.com/Reprisal369/OMIKAMI-WALLET
-> - Release / tag to review: `v0.5.4` (commit `073253c`)
+> - Release / tag to review: `v0.5.5` (commit `213cc04`)
 > - Live preview: https://omikami-wallet.pages.dev
 > - Start here: `docs/reviews/AUDIT_PACKAGE_v0.5.4.md` (scope, threat model,
 >   test evidence, and reproduction, all in one page)
@@ -293,10 +293,10 @@ Responsible-disclosure contact: see `SECURITY.md`.
 > before adding transactions. Small typed pnpm monorepo, pure unit-tested security
 > logic, full CI, A+ headers, CodeQL clean. Full package + reproduction:
 > `docs/reviews/AUDIT_PACKAGE_v0.5.4.md`. Repo:
-> https://github.com/Reprisal369/OMIKAMI-WALLET (tag `v0.5.4`). Would you be open
+> https://github.com/Reprisal369/OMIKAMI-WALLET (tag `v0.5.5`). Would you be open
 > to a short review? — Reprisal
 
 ---
 
 *Prepared for external review. No product code was changed to assemble this
-package; it documents the tree at tag `v0.5.4` (`073253c`).*
+package; it documents the tree at tag `v0.5.5` (`213cc04`).*
