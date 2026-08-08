@@ -51,7 +51,7 @@ pnpm verify   # lint · typecheck · typecheck:e2e · unit · forbidden · secre
 pnpm e2e      # Playwright end-to-end (desktop + mobile)
 ```
 
-Latest results (clean build): unit **93** · e2e **38** · `pnpm audit` **0
+Latest results (clean build): unit **94** · e2e **38** · `pnpm audit` **0
 vulnerabilities** · forbidden-pattern, secret and bundle gates clean.
 
 ## Security
