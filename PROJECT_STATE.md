@@ -1,6 +1,18 @@
 # OMIKAMI WALLET — PROJECT_STATE.md
 
-Last updated: 2026-07-27 (session 12: FREEZE FOR EXTERNAL AUDIT — audit package finalized to v0.5.2)
+Last updated: 2026-08-14 (session 14: v0.5.5 IMMUTABLE audit candidate — a11y pass + nanoid patch; tag finalized at 1b1bbc2)
+
+## Session 14 — A11Y PASS + DEPENDENCY PATCH → v0.5.5 IMMUTABLE AUDIT CANDIDATE (2026-08-07/08)
+
+After v0.5.3 CodeQL cleanup (ReDoS fixed & merged; `generate-csp` finding dismissed → **CodeQL 0 open**; securityheaders.com **A+**), ran an **accessibility (a11y) review** (roadmap step 2, UI-only, within the freeze) and applied WCAG 2.1/2.2 AA fixes: aria-labels on explorer/tx/"↗" links, page `<h1>` + "Skip to main content" link + `<main id>`, a baseline `:where(...):focus-visible` ring for small inline controls, `aria-describedby`/`aria-invalid` on the Settings RPC field, `--omi-danger` `#c85050`→`#d46a6a` (contrast 4.16→5.0), ≥24px tap targets + polite copy-announce. Findings in `docs/reviews/ACCESSIBILITY_REVIEW.md`. Merged (PR #18) → **v0.5.4**. No security-architecture change; still read-only.
+
+**Dependency advisory (nanoid).** OSV/`pnpm audit` flagged **nanoid <3.3.17 (GHSA-2v37-7h3g-55p8, high)** — a transitive build/test dep (postcss inside next; vite inside vitest). The grouped Dependabot npm-patch PR (#20) did **not** fix it (bumped 4 other patches; nanoid stayed 3.3.16, briefly making `main` red on osv-scan/verify). Patched via a pnpm override **`"nanoid": "^3.3.17"` → resolves 3.3.18**, kept to the 3.x line so postcss/vite stay compatible (build+unit+bundle verified green with pinned pnpm 10.34.5; lockfileVersion '9.0' unchanged; `pnpm audit` **0**). Side note: the #20 merge also drifted `@playwright/test` 1.62.0→1.61.1 (harmless; CI installs the matching Chromium).
+
+**Consolidated audit package** `docs/reviews/AUDIT_PACKAGE_v0.5.4.md` added — self-contained cover (summary, architecture, security guarantees, scope, threat-model summary, test evidence, reproduction, completeness checklist, ready-to-send outreach). Corrected stale unit count **93→94** in README + the AUDIT_PACKAGE banner. Two OPTIONAL artifacts still open (nice-to-have, not blockers): a committed **SBOM snapshot** (`pnpm sbom`) + **release-hash** (`pnpm release:hash`).
+
+**v0.5.5 = the clean, IMMUTABLE audit candidate.** The nanoid-fix product-code merge = commit **`213cc04`**; the doc-pointer refinements are documentation-only on top → main HEAD **`1b1bbc2`**. To give the reviewer one truth (checkout tag → identical product code **and** final docs together), the **`v0.5.5` tag was force-moved to `1b1bbc2`** (verified: remote `refs/tags/v0.5.5^{}` == `main` == `1b1bbc2`; the `213cc04`→`1b1bbc2` delta is 5 `.md` files only — no product-code path touched). All reviewer docs (README, `SECURITY_AUDIT_SCOPE.md`, `REVIEWER_HANDOFF.md`, both AUDIT_PACKAGE files) now point to **v0.5.5 / audited product-code commit `213cc04`**. GitHub Release **v0.5.5** published (pre-release). **CI green on `main` (`1b1bbc2`, ci #51)**; the earlier red run (#47) was the transient `fd449be` state before the nanoid fix — historical, inbox cleared.
+
+**RULE going forward: v0.5.5 is IMMUTABLE — never move the tag again. Any code change → v0.5.6.** One commit → one codebase → one doc set → one scope → one reproducible review base. NEXT (owner, own pace): send the package to a reviewer (`REVIEWER_HANDOFF.md`; a wagmi/viem community "Show and tell" post is drafted). Best route for a read-only testnet build with no funds: one security-minded peer or a wagmi/viem GitHub Discussions post — free community review, best-effort. The external review is the real gate before enabling transactions/mainnet; keep building on a **v0.5.6** track meanwhile. Gate 8 (reproducible builds) still deferred until after the audit unless it becomes a blocker.
 
 ## Session 13 — FREE-TOOLS SECURITY REVIEW (2026-07-27) → v0.5.3
 
