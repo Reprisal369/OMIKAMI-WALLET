@@ -233,17 +233,24 @@ Responsible-disclosure contact: see `SECURITY.md`.
 - [x] CI workflows with pinned action SHAs; branch protection on `main`
 - [x] Test evidence current (unit **94**, e2e **38**) — §7
 
-**Optional artifacts to add before sending (nice-to-have, not blockers):**
+**Generated artifacts & known items:**
 
-- [ ] **Committed SBOM snapshot** — `pnpm sbom` generates it and CI produces it
-      (SBOM+hash check); a committed `sbom.json` at the tag is convenient for a
-      reviewer who doesn't build locally.
-- [ ] **Release-hash file** — `pnpm release:hash` output committed alongside the
-      SBOM for offline integrity checking.
-- [ ] Optional one-line pointer from `REVIEWER_HANDOFF.md` / `EXTERNAL_AUDIT_PREP.md`
-      to this v0.5.4 cover page (they currently reference the v0.5.0 evidence
-      package, which remains valid).
-- [ ] `PROJECT_STATE.md` note for the v0.5.4 session (a11y pass + release).
+- [x] **SBOM** — produced on demand via `pnpm sbom` and by the CI `sbom-and-hash`
+      job (deterministic: 186 components across 10 licenses, MIT-dominant). It is
+      deliberately git-ignored rather than committed (it carries a generation date
+      and is reproducible on demand), per `DEPENDENCY_POLICY.md`. A reviewer runs
+      `pnpm sbom` to reproduce it.
+- [x] **Release hash** — `pnpm release:hash` computes a SHA-256 manifest over the
+      static export (also run in CI). NOT published as a fixed value on purpose:
+      the Next.js static export is not yet byte-reproducible (build-id variance —
+      two clean builds currently yield different manifest hashes). Byte-level
+      **reproducible builds are tracked as Gate 8**, deferred until after the
+      external review unless it becomes a blocker; no committed manifest is
+      provided so as not to imply a "verify-this-hash" guarantee that wouldn't hold.
+- [x] `PROJECT_STATE.md` session note added (session 14).
+- [ ] Optional: point `REVIEWER_HANDOFF.md` / `EXTERNAL_AUDIT_PREP.md` at this
+      cover page (they still reference the v0.5.0 evidence package, which remains
+      valid).
 
 ---
 
