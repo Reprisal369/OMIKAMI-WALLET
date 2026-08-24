@@ -11,10 +11,10 @@
   },
   "dependencies": {
     "@omikami/types": "workspace:*",
-    "viem": "2.55.10"
+    "viem": "2.55.19"
   },
   "devDependencies": {
     "typescript": "5.9.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   }
 }
