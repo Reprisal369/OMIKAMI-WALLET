@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@omikami/types": "workspace:*",
-    "viem": "2.55.10",
-    "zod": "4.4.3"
+    "viem": "2.56.3",
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "typescript": "5.9.3",
