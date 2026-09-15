@@ -17,6 +17,27 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Awaiting external security review. No new wallet features until then.
 
+## [0.5.6] — 2026-09-15 — Security patch (vulnerable dependencies)
+
+Dependency security update; still strictly read-only and testnet-only. No
+product-code, transaction, egress, or read-only-invariant changes. Supersedes the
+v0.5.5 audit candidate.
+
+### Security
+- **Next.js `16.2.12` → `16.3.4`** — resolves two advisories (critical/high)
+  affecting `next` (vulnerable `<16.3.3`).
+- **`sharp` override → `>=0.35.4`** — resolves the transitive `sharp` advisory
+  (`<0.35.4`, pulled via `next`).
+- **vitest `4.1.10` → `4.1.11`** (+ `@vitest/mocker`) — resolves the dev/test
+  advisory (`<4.1.11`).
+- `pnpm audit` now reports **0 vulnerabilities** (was **2 critical · 1 high · 2
+  moderate**).
+
+### Verified
+- All gates green: lint · typecheck (all + e2e) · unit **94** · forbidden ·
+  secrets · build · bundle (0 unknown hosts — runtime egress unchanged) · CSP ·
+  audit **0**. Still read-only; no transactions, no mainnet.
+
 ## [0.5.4] — 2026-07-31 — Accessibility pass (WCAG 2.1/2.2 AA)
 
 UI-only accessibility improvements from an internal a11y review
