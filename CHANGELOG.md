@@ -17,14 +17,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Awaiting external security review. No new wallet features until then.
 
-## [0.5.6] — 2026-09-15 — Security patch (vulnerable dependencies)
+## [0.5.6] — 2026-09-15 — Security patch + dependency currency
 
-Dependency security update; still strictly read-only and testnet-only. No
-product-code, transaction, egress, or read-only-invariant changes. Supersedes the
-v0.5.5 audit candidate.
+Dependency security update and currency refresh; still strictly read-only and
+testnet-only. No first-party product-code, transaction, egress, or
+read-only-invariant changes. Supersedes the v0.5.5 audit candidate (which is now
+itself outdated and carries the pre-patch `next`).
 
-### Security
-- **Next.js `16.2.12` → `16.3.4`** — resolves two advisories (critical/high)
+### Security (the reason for this release)
+- **Next.js `16.2.12` → `16.3.5`** — resolves two advisories (critical/high)
   affecting `next` (vulnerable `<16.3.3`).
 - **`sharp` override → `>=0.35.4`** — resolves the transitive `sharp` advisory
   (`<0.35.4`, pulled via `next`).
@@ -32,6 +33,13 @@ v0.5.5 audit candidate.
   advisory (`<4.1.11`).
 - `pnpm audit` now reports **0 vulnerabilities** (was **2 critical · 1 high · 2
   moderate**).
+
+### Dependencies (currency, non-security)
+- Rest of the dependency group brought current via reviewed Dependabot merges:
+  react / react-dom `19.2.8 → 19.3.0`, viem `2.55.10 → 2.56.3`, wagmi
+  `3.7.5 → 3.7.7`, plus `@tanstack/react-query`, `zod`, and dev tooling
+  (`@playwright/test`, `eslint`, `typescript-eslint`, `@types/*`). **Egress
+  unchanged** — the bundle gate verified viem 2.56 introduces no new host.
 
 ### Verified
 - All gates green: lint · typecheck (all + e2e) · unit **94** · forbidden ·
