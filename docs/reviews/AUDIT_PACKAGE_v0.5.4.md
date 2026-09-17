@@ -240,13 +240,13 @@ Responsible-disclosure contact: see `SECURITY.md`.
       deliberately git-ignored rather than committed (it carries a generation date
       and is reproducible on demand), per `DEPENDENCY_POLICY.md`. A reviewer runs
       `pnpm sbom` to reproduce it.
-- [x] **Release hash** — `pnpm release:hash` computes a SHA-256 manifest over the
-      static export (also run in CI). NOT published as a fixed value on purpose:
-      the Next.js static export is not yet byte-reproducible (build-id variance —
-      two clean builds currently yield different manifest hashes). Byte-level
-      **reproducible builds are tracked as Gate 8**, deferred until after the
-      external review unless it becomes a blocker; no committed manifest is
-      provided so as not to imply a "verify-this-hash" guarantee that wouldn't hold.
+- [x] **Release hash / reproducible build (Gate 8 — done in v0.5.7).** The
+      Next.js build ID is pinned (`generateBuildId → omikami-<version>`), so two
+      clean builds of the same commit produce an **identical** `pnpm release:hash`
+      manifest. A reviewer can independently confirm a deployment was built from
+      the tagged source: run `pnpm build && pnpm release:hash` twice and compare.
+      The manifest itself stays git-ignored (generated on demand / in CI), not
+      committed.
 - [x] `PROJECT_STATE.md` session note added (session 14).
 - [ ] Optional: point `REVIEWER_HANDOFF.md` / `EXTERNAL_AUDIT_PREP.md` at this
       cover page (they still reference the v0.5.0 evidence package, which remains
