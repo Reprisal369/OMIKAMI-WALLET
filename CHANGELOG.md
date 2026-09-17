@@ -17,6 +17,26 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Awaiting external security review. No new wallet features until then.
 
+## [0.5.7] — 2026-09-17 — Reproducible builds (Gate 8)
+
+Build-config change; still strictly read-only and testnet-only. No product-code
+logic, transaction, egress, or read-only-invariant changes.
+
+### Build
+- **Reproducible static export (Gate 8).** Pinned the Next.js build ID
+  (`generateBuildId → omikami-<version>`). Next otherwise generated a random ID
+  per build, which was the *only* source of byte-level non-determinism. Two clean
+  builds of the same commit now produce an **identical** `pnpm release:hash`
+  manifest, so a reviewer (or CI) can independently verify that a deployment was
+  built from the tagged source. Side effect: the CSP inline-script hashes are now
+  stable per version too.
+
+### Verified
+- Two clean builds → **identical** manifest SHA-256. All gates green: lint ·
+  typecheck (all + e2e) · unit **94** · forbidden · secrets · build · bundle
+  (0 unknown hosts) · CSP · audit **0**. Still read-only; no transactions, no
+  mainnet.
+
 ## [0.5.6] — 2026-09-15 — Security patch + dependency currency
 
 Dependency security update and currency refresh; still strictly read-only and
