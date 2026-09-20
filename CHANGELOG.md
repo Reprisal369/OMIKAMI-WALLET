@@ -16,6 +16,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 - Awaiting external security review. No new wallet features until then.
+- **Expanded pure-security unit coverage** (test-only, no product code, no
+  version bump): added `packages/security/src/edge-cases.test.ts` — 19 edge-case
+  tests for address-validation casing, address-poisoning partial-match negatives
+  (both ends must match), connect-error message/name routing, security-status
+  variants, allowance-risk precedence (zero/unlimited over unverified), and
+  quarantine scoping. Security package 74 → 93 tests; suite total 94 → 113.
 
 ## [0.5.7] — 2026-09-17 — Reproducible builds (Gate 8)
 
