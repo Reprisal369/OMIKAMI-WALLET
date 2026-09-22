@@ -5,8 +5,8 @@ phase. **No code in this document is implemented, and nothing here relaxes the
 current read-only build.** It exists so the external reviewer can assess the
 *plan*, and so implementation later starts from an agreed, security-first design.
 
-Phase 1 (read-only) is frozen at `v0.5.1`. Phase 2 does not begin until the
-preconditions in §2 are met.
+Phase 1 (read-only) is frozen; the current audit candidate is `v0.5.7`. Phase 2
+does not begin until the preconditions in §2 are met.
 
 ---
 
@@ -111,6 +111,26 @@ additionally requires 4.
   it is an aid, not a guarantee. On simulation failure → warn + let the wallet be
   the authority.
 
+### 4.7 The transaction request is the single source of truth (P3 enforcement)
+
+The strongest write-phase guarantee is that **what the user sees is exactly what
+the wallet signs**. To make parameter-tampering (P3) *structurally* impossible
+rather than merely tested:
+
+- A transaction intent is built **once** into a single immutable request object
+  (`to`, `value`, `data`, `chainId`, plus the decoded `functionName` + `args`
+  where relevant). That one object is the sole input to BOTH (a) the
+  human-readable preview and (b) the wallet request — neither is re-encoded or
+  re-derived on a separate path.
+- The preview is produced by **decoding the request's own `data`** (not by
+  re-formatting the pre-encode inputs), so an encode-vs-display mismatch is not
+  representable.
+- Immediately before hand-off, a self-check **re-decodes** the outgoing request
+  and asserts it equals the previewed values; any divergence is a hard block
+  (fail safe). This equality is covered by unit tests (§7, P3).
+- The request object is never mutated after preview. "Edit" means constructing a
+  new object and previewing again from scratch — there is no in-place patch path.
+
 ## 5. Architecture & how the read-only gate evolves
 
 - The single write extension point is `apps/web/src/lib/wagmi.ts` (`connectors`,
@@ -164,6 +184,70 @@ account-abstraction/paymaster flows, no custom arbitrary-contract calls. The
 first write release is deliberately just **send** (+ the read-only-derived
 safety checks) so the new signing surface is as small as possible for its first
 external review.
+
+## 9. Transaction lifecycle (state machine)
+
+Each transaction moves through explicit states; every failure transition is
+**safe** (block or loud warning, never a silent proceed):
+
+```
+idle
+  → building              (construct the single request object, §4.7)
+  → previewing            (decode + SHIELD checks + wrong-network check)
+  → simulating            (best-effort, §4.6; failure → warn, not hard-block)
+  → awaiting-signature    (hand the exact request to the wallet)
+  → pending               (broadcast; poll the receipt)
+  → confirmed | failed | replaced | dropped
+```
+
+- **building → previewing:** if the calldata will not decode, or the wallet is on
+  the wrong network, execution stops here — a signature is never even requested.
+- **awaiting-signature** is the ONLY state that touches a wallet write API, and
+  only from the reviewed `tx` module (§5). User rejection returns cleanly to
+  `idle` with nothing signed.
+- **pending → replaced/dropped** is read from the wallet/RPC and surfaced plainly;
+  the app **never** silently re-broadcasts or bumps gas (P9). Nonce management is
+  the wallet's job — the app does not track, choose, or reuse nonces.
+- State is derived, not persisted across reloads: a refresh mid-flight returns to
+  `idle` with nothing signed, mirroring the read-only "no stored session" promise.
+
+## 10. Transaction error taxonomy (safe messages)
+
+Mirrors the read-only error hygiene (`classifyConnectError`): raw provider
+payloads are never shown; each failure maps to a fixed, non-leaking message and a
+recommended action.
+
+| Kind | Trigger (examples) | User-facing action |
+|---|---|---|
+| `user-rejected` | EIP-1193 `4001` | "You rejected it in your wallet. Nothing was signed or sent." |
+| `insufficient-funds` | balance < value + fee | "Not enough funds to cover the amount plus the network fee." |
+| `gas-estimation-failed` | estimate reverts | "This transaction would fail on-chain, so it was not sent. Check the recipient/contract." (block) |
+| `wrong-network` | wallet chain ≠ intended | "Your wallet is on the wrong network. Switch it yourself — this app never switches for you." (block) |
+| `nonce/replacement` | nonce too low / already known | "This looks like a duplicate or replacement. Check your wallet's activity before retrying." |
+| `decode-failed` | calldata won't decode | "Could not read this transaction safely, so it was blocked." (block — no blind signing, P2) |
+| `broadcast-failed` | RPC rejects the raw tx | "The network did not accept the transaction. Nothing was charged. Try again." |
+| `unknown` | anything else | "The transaction failed. No funds move from a failed transaction. Try again, or check your wallet." |
+
+## 11. Open design questions (for the reviewer)
+
+Deliberately-unsettled decisions we want challenged before implementing — the
+goal of Phase 2 sign-off is to close these *with* the reviewer, not to present
+them as decided:
+
+1. **Permit2 at all?** It is powerful and phishing-prone (§4.3). Option: ship
+   send + approve/revoke only and defer Permit2 indefinitely absent a concrete
+   user need.
+2. **Swaps (§4.4):** integrate a single pinned, audited aggregator in-house, or
+   link out to a reviewed external dApp and not add a router surface here at all?
+3. **Simulation (§4.6):** local `eth_call` only (no new egress) vs a third-party
+   simulation host (a new `connect-src` / bundle-allowlist / PRIVACY entry). Lean
+   local-only for the first release.
+4. **Fee display:** show the wallet's own estimate only, or add an independent
+   EIP-1559 estimate? Prefer the wallet's, to avoid a second source of truth.
+5. **Connector scope:** injected-only for 2.1, or also WalletConnect / hardware
+   wallets? Injected-only keeps the first signing surface smallest.
+6. **Batching / account abstraction / paymasters:** out of scope for 2.x here —
+   is that the right call for the intended users?
 
 ---
 
