@@ -23,6 +23,26 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   variants, allowance-risk precedence (zero/unlimited over unverified), and
   quarantine scoping. Security package 74 → 93 tests; suite total 94 → 113.
 
+## [0.5.8] — 2026-10-09 — Security patch (vulnerable dependencies)
+
+Dependency security update; still strictly read-only and testnet-only. No
+first-party product-code, transaction, egress, or read-only-invariant changes.
+
+### Security
+- **Next.js `16.3.5` → `16.3.8`** — resolves multiple advisories (including
+  critical/high) affecting `next` (vulnerable `<16.3.8`).
+- **`sharp` override → `>=0.35.5`** — resolves the transitive `sharp` advisory
+  (`<0.35.5`, pulled via `next`).
+- **`source-map-js` override → `>=1.2.2`** — resolves the transitive dev/test
+  advisory (`<1.2.2`, via `vitest > vite > postcss`).
+- `pnpm audit` back to **0 vulnerabilities** (was **1 critical · 3 high · 4
+  moderate · 1 low**).
+
+### Verified
+- All gates green: lint · typecheck (all + e2e) · unit **113** · forbidden ·
+  secrets · build · bundle (0 unknown hosts — egress unchanged) · CSP · audit
+  **0**. Still read-only; no transactions, no mainnet.
+
 ## [0.5.7] — 2026-09-17 — Reproducible builds (Gate 8)
 
 Build-config change; still strictly read-only and testnet-only. No product-code
