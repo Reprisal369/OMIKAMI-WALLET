@@ -164,6 +164,10 @@ test.describe('OMIKAMI WALLET — read-only shell', () => {
     await expect(page.getByText(/token balances/i).first()).toBeVisible();
     await expect(page.getByText('USDC').first()).toBeVisible();
     await expect(page.getByText('Verified').first()).toBeVisible();
+    // Panel-level manual refresh exists and is a read-only re-fetch — its
+    // accessible name is "Refresh", never a transaction/credential verb.
+    const tokenPanel = page.locator('section').filter({ has: page.getByText(/token balances/i) });
+    await expect(tokenPanel.getByRole('button', { name: /refresh/i })).toBeVisible();
     // Only the Settings RPC-URL input exists; no transaction inputs.
     await expect(page.locator('main input[type="password"], main input[type="file"]')).toHaveCount(0);
   });

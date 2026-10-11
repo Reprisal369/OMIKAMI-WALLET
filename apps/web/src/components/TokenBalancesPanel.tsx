@@ -5,7 +5,7 @@ import { useAccount, useReadContracts } from 'wagmi';
 import { DEFAULT_CHAIN_ID, explorerAddressUrl } from '@omikami/chain-config';
 import { emphasizeAddress } from '@omikami/security';
 import { VERIFIED_TOKENS, formatTokenAmount, sanitizeTokenText } from '@omikami/token-registry';
-import { CopyButton, Panel, StatusBadge } from '@omikami/ui';
+import { ActionButton, CopyButton, Panel, StatusBadge } from '@omikami/ui';
 
 const TOKENS = VERIFIED_TOKENS.filter((t) => t.chainId === DEFAULT_CHAIN_ID);
 
@@ -41,6 +41,23 @@ export function TokenBalancesPanel() {
 
   return (
     <Panel title="Token balances">
+      {enabled && (
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <span className="text-xs text-[var(--omi-muted)]" aria-live="polite">
+            {reads.dataUpdatedAt > 0
+              ? `Updated ${new Date(reads.dataUpdatedAt).toLocaleTimeString()}`
+              : 'Checking balances…'}
+          </span>
+          <ActionButton
+            variant="quiet"
+            onClick={() => void reads.refetch()}
+            disabled={reads.isFetching}
+          >
+            {reads.isFetching ? 'Refreshing…' : 'Refresh'}
+          </ActionButton>
+        </div>
+      )}
+
       {TOKENS.length === 0 && (
         <p className="text-sm text-[var(--omi-muted)]">
           No tokens have passed verification for this network yet. Tokens are added to the registry

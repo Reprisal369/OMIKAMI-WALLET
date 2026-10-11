@@ -22,6 +22,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   (both ends must match), connect-error message/name routing, security-status
   variants, allowance-risk precedence (zero/unlimited over unverified), and
   quarantine scoping. Security package 74 → 93 tests; suite total 94 → 113.
+- **Manual refresh on Token balances** (read-only UX; no version bump, no new
+  wallet capability): the balances panel now shows an "Updated HH:MM:SS"
+  timestamp and a quiet **Refresh** button that re-runs the existing read-only
+  `balanceOf` reads via wagmi's `refetch`. It only re-reads what the panel
+  already shows — no new chain interaction, no signing, no new egress — and
+  appears only when connected on Sepolia. Covered by e2e test 16, which asserts
+  the control's accessible name is "Refresh" (never a transaction verb).
 
 ## [0.5.8] — 2026-10-09 — Security patch (vulnerable dependencies)
 
