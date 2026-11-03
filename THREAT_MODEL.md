@@ -4,6 +4,17 @@ Status: CONDITIONALLY APPROVED for the strictly read-only phase one (owner revie
 Full approval requires implementation verification: source, CI configuration, hosting settings, and tests inspected against this document. Documented controls are PROMISES until that verification passes.
 Date: 2026-07-13 (reviewed)
 
+Phase 2 status (2026-11-03): transaction **groundwork** has begun at the owner's
+direction. The write-surface boundary (`apps/web/src/lib/tx/`) and the scoped
+M1 allowlist gate are in place, and the Phase-2 threat additions are specified
+in `docs/design/PHASE_2_TRANSACTIONS.md` (P1–P10, which map onto §E below).
+**No transactions are enabled:** `transactionsEnabled` is false for every chain
+and no write/sign code exists. Enabling transactions on **testnet** still
+requires design §2 preconditions 1–3 and 5; **mainnet** additionally requires
+the external security review, a contract audit where applicable, and the
+`MAINNET_CHECKLIST.md` gates. The external review is deferred to before
+mainnet / real funds rather than gating testnet build work.
+
 Format per threat: **Path** (attack path) · **Impact** · **Prevent** (preventive controls) · **Detect** · **Recover** · **Residual** (remaining risk) · **Test** (testing method).
 
 Baseline architectural fact used throughout: OMIKAMI WALLET never possesses keys or funds. The worst cases are therefore (a) tricking the user into signing something harmful, and (b) showing the user false information. Most controls target those two outcomes.
