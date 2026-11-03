@@ -43,6 +43,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   else (every other rule — key material, storage, eval — still applies in the
   tx module too). `transactionsEnabled` remains false; the read-only invariant
   and its e2e proofs are unchanged. THREAT_MODEL.md records the Phase-2 status.
+- **Dependency security patch (12 advisories → 0).** A fresh batch of advisories
+  landed (same pattern as 0.5.8). Fixed: Next.js `16.3.8 → 16.4.4` (2 critical
+  RCE + 1 high DoS — server-side features our static export never uses, but the
+  audit gate flags them regardless); `zod → 4.6.6` (high ReDoS/memory);
+  `vitest → 4.1.12` (@vitest/mocker code-injection); and pnpm overrides
+  `vite 8.3.5` (file-serving / XSS) + `minimatch >=11.0.1` (ReDoS) — all
+  dev/test-only, not shipped in the export. `pnpm audit` back to **0** (was
+  2 critical · 3 high · 6 moderate · 1 low); all gates green; egress unchanged
+  (bundle 31 files, 0 unknown hosts); still read-only, no transactions.
 
 ## [0.5.8] — 2026-10-09 — Security patch (vulnerable dependencies)
 
