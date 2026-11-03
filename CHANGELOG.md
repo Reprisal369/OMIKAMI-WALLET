@@ -15,7 +15,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-- Awaiting external security review. No new wallet features until then.
+- **Phase 2 groundwork started (owner decision, 2026-11-03).** The external
+  security review is now deferred to before mainnet / real funds, rather than
+  gating testnet build work. Transaction *groundwork* may land on the testnet
+  track, but **no transactions are enabled**: `transactionsEnabled` stays false
+  for every chain and no write/sign code exists. Mainnet remains gated on the
+  external review and a contract audit where applicable.
 - **Expanded pure-security unit coverage** (test-only, no product code, no
   version bump): added `packages/security/src/edge-cases.test.ts` — 19 edge-case
   tests for address-validation casing, address-poisoning partial-match negatives
@@ -29,6 +34,24 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   already shows — no new chain interaction, no signing, no new egress — and
   appears only when connected on Sepolia. Covered by e2e test 16, which asserts
   the control's accessible name is "Refresh" (never a transaction verb).
+- **Phase 2 write-surface boundary (scaffolding only, no transactions).** Added
+  `apps/web/src/lib/tx/` — the single reviewed location where wallet write/sign
+  APIs may ever live (design §5) — containing **pure types only** (`TxRequest`
+  §4.7, `TxState` §9, `TxErrorKind` §10) and no write code. Converted the M1
+  forbidden-pattern gate to a **scoped allowlist**: the write/sign/switch rule
+  is now exempt ONLY under `apps/web/src/lib/tx/` and still fails everywhere
+  else (every other rule — key material, storage, eval — still applies in the
+  tx module too). `transactionsEnabled` remains false; the read-only invariant
+  and its e2e proofs are unchanged. THREAT_MODEL.md records the Phase-2 status.
+- **Dependency security patch (12 advisories → 0).** A fresh batch of advisories
+  landed (same pattern as 0.5.8). Fixed: Next.js `16.3.8 → 16.4.4` (2 critical
+  RCE + 1 high DoS — server-side features our static export never uses, but the
+  audit gate flags them regardless); `zod → 4.6.6` (high ReDoS/memory);
+  `vitest → 4.1.12` (@vitest/mocker code-injection); and pnpm overrides
+  `vite 8.3.5` (file-serving / XSS) + `minimatch >=11.0.1` (ReDoS) — all
+  dev/test-only, not shipped in the export. `pnpm audit` back to **0** (was
+  2 critical · 3 high · 6 moderate · 1 low); all gates green; egress unchanged
+  (bundle 31 files, 0 unknown hosts); still read-only, no transactions.
 
 ## [0.5.8] — 2026-10-09 — Security patch (vulnerable dependencies)
 

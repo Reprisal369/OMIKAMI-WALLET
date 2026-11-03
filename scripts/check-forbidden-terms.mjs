@@ -32,6 +32,14 @@ const RULES = [
 // The ONE reviewed exception permitted to use browser storage (THREAT_MODEL C1c).
 const STORAGE_EXCEPTION = 'apps/web/src/lib/rpc-storage.ts';
 
+// Phase 2 write-surface boundary (PHASE_2_TRANSACTIONS.md §5): the single
+// reviewed directory where wallet write/sign/switch APIs may ever live. The
+// M1 read-only rule is exempted ONLY here and nowhere else; every other rule
+// (key material, storage, raw HTML, eval, …) still applies in this module too.
+// The module holds no write code yet (transactions remain disabled) — this
+// keeps the eventual write surface tiny, centralized, and auditable.
+const WRITE_SURFACE_PREFIX = 'apps/web/src/lib/tx/';
+
 const violations = [];
 function walk(dir) {
   for (const name of readdirSync(dir)) {
@@ -42,9 +50,12 @@ function walk(dir) {
     else if (EXT.has(name.slice(name.lastIndexOf('.')))) {
       const text = readFileSync(p, 'utf8');
       const lines = text.split('\n');
-      const isStorageException = p.replace(/\\/g, '/').endsWith(STORAGE_EXCEPTION);
+      const norm = p.replace(/\\/g, '/');
+      const isStorageException = norm.endsWith(STORAGE_EXCEPTION);
+      const isWriteSurface = norm.includes(WRITE_SURFACE_PREFIX);
       for (const [re, msg] of RULES) {
         if (isStorageException && msg.includes('browser storage')) continue;
+        if (isWriteSurface && msg.includes('read-only invariant (M1)')) continue;
         lines.forEach((line, i) => {
           if (re.test(line)) violations.push(`${p}:${i + 1} — ${msg}\n    ${line.trim().slice(0, 120)}`);
         });
