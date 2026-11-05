@@ -1,0 +1,21 @@
+# gitleaks configuration — OMIKAMI WALLET
+#
+# Extends gitleaks' DEFAULT ruleset and adds one NARROW allowlist: Ethereum
+# addresses (0x followed by exactly 40 hex chars) are public, non-secret
+# identifiers. They appear as test fixtures and in the reviewed token registry
+# and must not be reported as leaked credentials.
+#
+# Safety: a private key is 0x + 64 hex. The boundary in the regex below means a
+# 64-hex value does NOT match this allowlist, so private keys remain caught here
+# AND by scripts/check-secrets.mjs (which independently fails on 0x + 64 hex).
+title = "OMIKAMI WALLET"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public Ethereum addresses are identifiers, not secrets (private keys stay blocked)."
+regexTarget = "line"
+regexes = [
+  '''0x[a-fA-F0-9]{40}(?:[^a-fA-F0-9]|$)''',
+]

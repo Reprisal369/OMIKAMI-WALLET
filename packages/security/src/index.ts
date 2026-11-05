@@ -206,3 +206,5 @@ export * from './rpc';
 export * from './send-preview';
 
 export * from './allowance';
+
+export * from './tx-build';

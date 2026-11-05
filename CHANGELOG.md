@@ -52,8 +52,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   dev/test-only, not shipped in the export. `pnpm audit` back to **0** (was
   2 critical · 3 high · 6 moderate · 1 low); all gates green; egress unchanged
   (bundle 31 files, 0 unknown hosts); still read-only, no transactions.
-
-## [0.5.8] — 2026-10-09 — Security patch (vulnerable dependencies)
+- **Phase 2 pure send-construction core (`@omikami/security` `tx-build`, no
+  transactions enabled).** Added pure, unit-tested logic to build the immutable
+  `TxRequest` for a native or ERC-20 `transfer` and to decode it back from its
+  own calldata, plus `assertShownEqualsSigned` — the P3 structural guarantee
+  that re-decodes the outgoing request and hard-blocks any divergence between
+  what the UI showed and what would be signed. Decoding refuses non-`transfer`
+  calldata, token calls carrying native value, and undecodable bytes (no blind
+  signing, P2). Contains **no wallet write/sign APIs** (viem `encode/decode`
+  only), so it lives in `@omikami/security`, not the write-surface module. The
+  shared `TxRequest`/`TxState`/`TxErrorKind` types moved to `@omikami/types` as
+  the single source of truth; `apps/web/src/lib/tx/` now re-exports them.
+  `transactionsEnabled` stays false; nothing is wired into the UI. New unit
+  tests for build/decode/round-trip/P3-tampering.
 
 Dependency security update; still strictly read-only and testnet-only. No
 first-party product-code, transaction, egress, or read-only-invariant changes.
