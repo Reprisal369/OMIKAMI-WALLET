@@ -13,8 +13,8 @@ import {
 // Lowercase on purpose — the module must re-checksum. Not production addresses.
 const RECIPIENT = '0x5aaeb6053f3e94c9b9a09f33669435e7ef1beaed';
 const RECIPIENT_CS = getAddress(RECIPIENT);
-const TOKEN = '0x1c7d4b196cb0c7b01d743fbc6116a902379c7238';
-const TOKEN_CS = getAddress(TOKEN);
+const USDC = '0x1c7d4b196cb0c7b01d743fbc6116a902379c7238';
+const USDC_CS = getAddress(USDC);
 const OTHER = '0x00000000000000000000000000000000deadbeef';
 const CHAIN = 11155111; // Sepolia
 
@@ -56,9 +56,9 @@ describe('buildSendTx — erc20', () => {
       to: RECIPIENT,
       amount: 1_000_000n,
       chainId: CHAIN,
-      tokenAddress: TOKEN,
+      tokenAddress: USDC,
     });
-    expect(req.to).toBe(TOKEN_CS);
+    expect(req.to).toBe(USDC_CS);
     expect(req.value).toBe(0n);
     expect(req.data.startsWith(ERC20_TRANSFER_SELECTOR)).toBe(true);
     // The calldata really decodes to transfer(recipient, amount).
@@ -92,14 +92,14 @@ describe('decodeSendTx — round-trips what was built', () => {
       to: RECIPIENT,
       amount: 2_500_000n,
       chainId: CHAIN,
-      tokenAddress: TOKEN,
+      tokenAddress: USDC,
     });
     expect(decodeSendTx(req)).toEqual({
       kind: 'erc20',
       recipient: RECIPIENT_CS,
       amount: 2_500_000n,
       chainId: CHAIN,
-      tokenAddress: TOKEN_CS,
+      tokenAddress: USDC_CS,
     });
   });
 });
@@ -107,16 +107,16 @@ describe('decodeSendTx — round-trips what was built', () => {
 describe('decodeSendTx — refuses anything it cannot read safely (P2)', () => {
   it('rejects a token call that also carries native value', () => {
     const data = encodeFunctionData({ abi: erc20Abi, functionName: 'transfer', args: [RECIPIENT_CS, 1n] });
-    expect(() => decodeSendTx({ to: TOKEN_CS, value: 1n, data, chainId: CHAIN })).toThrow(TxDecodeError);
+    expect(() => decodeSendTx({ to: USDC_CS, value: 1n, data, chainId: CHAIN })).toThrow(TxDecodeError);
   });
 
   it('rejects calldata for a different ERC-20 function (e.g. approve)', () => {
     const data = encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [OTHER, 1n] });
-    expect(() => decodeSendTx({ to: TOKEN_CS, value: 0n, data, chainId: CHAIN })).toThrow(TxDecodeError);
+    expect(() => decodeSendTx({ to: USDC_CS, value: 0n, data, chainId: CHAIN })).toThrow(TxDecodeError);
   });
 
   it('rejects undecodable garbage calldata', () => {
-    expect(() => decodeSendTx({ to: TOKEN_CS, value: 0n, data: '0xdeadbeef', chainId: CHAIN })).toThrow(
+    expect(() => decodeSendTx({ to: USDC_CS, value: 0n, data: '0xdeadbeef', chainId: CHAIN })).toThrow(
       TxDecodeError,
     );
   });
@@ -128,7 +128,7 @@ describe('assertShownEqualsSigned — P3: shown must equal signed', () => {
     to: RECIPIENT,
     amount: 1_000_000n,
     chainId: CHAIN,
-    tokenAddress: TOKEN,
+    tokenAddress: USDC,
   });
   const faithful: DecodedSend = decodeSendTx(req);
 
@@ -141,7 +141,7 @@ describe('assertShownEqualsSigned — P3: shown must equal signed', () => {
       assertShownEqualsSigned(req, {
         ...faithful,
         recipient: RECIPIENT as `0x${string}`,
-        tokenAddress: TOKEN as `0x${string}`,
+        tokenAddress: USDC as `0x${string}`,
       }),
     ).not.toThrow();
   });
