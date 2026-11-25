@@ -264,6 +264,27 @@ test.describe('OMIKAMI WALLET — read-only shell', () => {
     );
   });
 
+  test('22. transfer preview shows the decoded request that would be built, still no send control', async ({
+    page,
+  }) => {
+    await installMockWallet(page);
+    await interceptRpc(page);
+    await page.goto('/');
+    await connectWallet(page);
+    const panel = page
+      .locator('section')
+      .filter({ has: page.getByText(/transfer preview \(read-only\)/i) });
+    await panel.getByLabel(/recipient address/i).fill('0x00000000000000000000000000000000deadbeef');
+    await panel.getByLabel(/amount/i).fill('1');
+    await expect(panel.getByText(/transaction that would be built/i)).toBeVisible();
+    await expect(panel.getByText(/decoded from those exact bytes/i)).toBeVisible();
+    await expect(panel.getByText('11155111').first()).toBeVisible();
+    // The new block is display-only: still zero send/sign controls.
+    await expect(
+      panel.getByRole('button', { name: /send|sign|broadcast|submit|confirm/i }),
+    ).toHaveCount(0);
+  });
+
   test('keyboard navigation reaches the primary action', async ({ page }) => {
     await installMockWallet(page);
     await interceptRpc(page);
