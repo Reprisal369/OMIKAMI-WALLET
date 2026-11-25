@@ -102,6 +102,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   display-only: no new inputs and no send/sign control, so the read-only
   invariant holds (still exactly three inputs, zero transaction buttons).
   Covered by new e2e test 22. `transactionsEnabled` stays false.
+- **First gated wallet-write entry point (`apps/web/src/lib/tx/send.ts`, still
+  unreachable).** The first real write code: `sendGatedTransaction` hands the
+  exact `TxRequest` to an injected wallet — but only after `assertTransactionsEnabled`
+  (new, in `@omikami/security`) passes, and it never does in this build
+  (`transactionsEnabled` is false everywhere), so the wallet call is unreachable
+  and no signature is ever requested. This is the single, reviewed choke point
+  for all future writes; it lives in the M1-exempt `tx/` directory, and the
+  forbidden-pattern gate still fails on a `sendTransaction` anywhere else
+  (proven by probe). The pure gate (`assertTransactionsEnabled` +
+  `TransactionsDisabledError`) is unit-tested; nothing is wired into the UI.
 
 Dependency security update; still strictly read-only and testnet-only. No
 first-party product-code, transaction, egress, or read-only-invariant changes.

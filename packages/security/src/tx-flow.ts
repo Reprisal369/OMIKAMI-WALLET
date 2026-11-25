@@ -149,3 +149,27 @@ export function buildVerifiedSend(params: BuildSendParams): VerifiedSend {
   assertShownEqualsSigned(request, shown);
   return { request, shown };
 }
+
+/**
+ * Thrown when a send is attempted while transactions are disabled — the normal,
+ * and in this build the only, state. Callers map it to a safe message and block;
+ * nothing is signed or sent.
+ */
+export class TransactionsDisabledError extends Error {
+  readonly kind = 'transactions-disabled' as const;
+  constructor() {
+    super('Transactions are disabled in this build. Nothing was signed or sent.');
+    this.name = 'TransactionsDisabledError';
+  }
+}
+
+/**
+ * The master write gate. Throws unless transactions are explicitly enabled for
+ * the target chain — which they are not, anywhere, in this build
+ * (`transactionsEnabled` is false). This is the single programmatic guard the
+ * write-surface module must pass before it may touch a wallet, so "read-only"
+ * is enforced in code, not merely by the absence of a button.
+ */
+export function assertTransactionsEnabled(enabled: boolean): void {
+  if (!enabled) throw new TransactionsDisabledError();
+}
