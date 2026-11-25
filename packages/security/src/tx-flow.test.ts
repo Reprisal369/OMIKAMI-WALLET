@@ -5,6 +5,8 @@ import {
   txErrorMessage,
   checkTransactionNetwork,
   buildVerifiedSend,
+  assertTransactionsEnabled,
+  TransactionsDisabledError,
 } from './tx-flow';
 import { TxDecodeError } from './tx-build';
 import type { TxErrorKind } from '@omikami/types';
@@ -150,5 +152,15 @@ describe('buildVerifiedSend — request plus the preview it decodes to', () => {
     expect(() =>
       buildVerifiedSend({ kind: 'erc20', to: RECIPIENT, amount: 1n, chainId: CHAIN }),
     ).toThrow(TxDecodeError);
+  });
+});
+
+describe('assertTransactionsEnabled — the master write gate', () => {
+  it('throws when transactions are disabled (the only state in this build)', () => {
+    expect(() => assertTransactionsEnabled(false)).toThrow(TransactionsDisabledError);
+  });
+
+  it('permits only when transactions are explicitly enabled', () => {
+    expect(() => assertTransactionsEnabled(true)).not.toThrow();
   });
 });
