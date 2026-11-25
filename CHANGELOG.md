@@ -93,6 +93,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   (P5). Side effects (sign, broadcast, poll) stay injected at the write-surface
   boundary; the machine itself touches no wallet API. New unit tests cover the
   happy path, safe failures, and mis-ordered-call no-ops; still read-only.
+- **Transfer preview now shows the exact request that would be built (read-only,
+  no send control).** The Transfer-preview panel feeds valid input through
+  `buildVerifiedSend` and displays the resulting `TxRequest` (to, value,
+  calldata, chain id) alongside the values **decoded from those same bytes**
+  (recipient, amount) — making the P3 "what you see is what would be signed"
+  guarantee visible on the site — plus the wrong-network check (P5). It is
+  display-only: no new inputs and no send/sign control, so the read-only
+  invariant holds (still exactly three inputs, zero transaction buttons).
+  Covered by new e2e test 22. `transactionsEnabled` stays false.
 
 Dependency security update; still strictly read-only and testnet-only. No
 first-party product-code, transaction, egress, or read-only-invariant changes.

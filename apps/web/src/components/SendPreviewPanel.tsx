@@ -4,8 +4,13 @@ import { useMemo, useState } from 'react';
 import { erc20Abi } from 'viem';
 import { useAccount, useBalance, useReadContract } from 'wagmi';
 import { DEFAULT_CHAIN_ID } from '@omikami/chain-config';
-import { buildSendPreview, emphasizeAddress } from '@omikami/security';
-import type { SendPreviewAsset } from '@omikami/security';
+import {
+  buildSendPreview,
+  buildVerifiedSend,
+  checkTransactionNetwork,
+  emphasizeAddress,
+} from '@omikami/security';
+import type { SendPreviewAsset, VerifiedSend } from '@omikami/security';
 import { VERIFIED_TOKENS, formatTokenAmount, sanitizeTokenText } from '@omikami/token-registry';
 import { Panel, StatusBadge } from '@omikami/ui';
 
@@ -91,6 +96,46 @@ export function SendPreviewPanel() {
   });
 
   const showChecks = recipientInput.trim().length > 0 || amountInput.trim().length > 0;
+
+  // The exact request a wallet WOULD be handed, built from the validated inputs
+  // and decoded back from its own bytes (P3: what is shown is what would be
+  // signed). Pure — no wallet is ever contacted. Only built when inputs are
+  // well-formed; buildVerifiedSend throws on anything else and we show nothing.
+  const built: VerifiedSend | undefined = useMemo(() => {
+    if (
+      !preview.recipient.valid ||
+      !preview.recipient.checksummed ||
+      !preview.amount.valid ||
+      preview.amount.value === undefined
+    ) {
+      return undefined;
+    }
+    try {
+      return buildVerifiedSend({
+        kind: asset.kind,
+        to: preview.recipient.checksummed,
+        amount: preview.amount.value,
+        chainId: DEFAULT_CHAIN_ID,
+        ...(asset.kind === 'erc20' && asset.contractAddress
+          ? { tokenAddress: asset.contractAddress }
+          : {}),
+      });
+    } catch {
+      return undefined;
+    }
+  }, [
+    preview.recipient.valid,
+    preview.recipient.checksummed,
+    preview.amount.valid,
+    preview.amount.value,
+    asset.kind,
+    asset.contractAddress,
+  ]);
+
+  const network =
+    built && account.status === 'connected'
+      ? checkTransactionNetwork(built.request.chainId, account.chainId)
+      : undefined;
 
   return (
     <Panel title="Transfer preview (read-only)">
@@ -205,6 +250,78 @@ export function SendPreviewPanel() {
               ? 'A real wallet should not proceed with this transfer as entered — resolve the blocking issues above first.'
               : 'These inputs look consistent. Even so, nothing is signed here; a real transfer would still require your wallet’s explicit approval.'}
           </div>
+          {built && (
+            <div className="mt-4 rounded-lg border border-[var(--omi-border)] bg-[rgba(140,150,170,0.05)] p-3">
+              <p className="mb-2 text-xs uppercase tracking-wide text-[var(--omi-muted)]">
+                Transaction that would be built
+              </p>
+              <dl className="flex flex-col gap-1.5 text-xs">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                  <dt className="text-[var(--omi-muted)]">Type</dt>
+                  <dd>{built.shown.kind === 'native' ? 'Native transfer' : 'ERC-20 transfer'}</dd>
+                </div>
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                  <dt className="text-[var(--omi-muted)]">To (contract / recipient)</dt>
+                  <dd>
+                    <EmphAddress address={built.request.to} />
+                  </dd>
+                </div>
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                  <dt className="text-[var(--omi-muted)]">Value</dt>
+                  <dd className="font-mono">{built.request.value.toString()} wei</dd>
+                </div>
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                  <dt className="text-[var(--omi-muted)]">Calldata</dt>
+                  <dd className="break-all font-mono" title={built.request.data}>
+                    {built.request.data === '0x'
+                      ? '0x (none)'
+                      : `${built.request.data.slice(0, 10)}…${built.request.data.slice(-8)}`}
+                  </dd>
+                </div>
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                  <dt className="text-[var(--omi-muted)]">Chain ID</dt>
+                  <dd className="font-mono">{built.request.chainId}</dd>
+                </div>
+              </dl>
+
+              <p className="mb-1 mt-3 text-xs uppercase tracking-wide text-[var(--omi-muted)]">
+                Decoded from those exact bytes
+              </p>
+              <dl className="flex flex-col gap-1.5 text-xs">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                  <dt className="text-[var(--omi-muted)]">Recipient</dt>
+                  <dd>
+                    <EmphAddress address={built.shown.recipient} />
+                  </dd>
+                </div>
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                  <dt className="text-[var(--omi-muted)]">Amount</dt>
+                  <dd className="font-mono">
+                    {formatTokenAmount(built.shown.amount, asset.decimals)} {asset.symbol}
+                  </dd>
+                </div>
+              </dl>
+
+              {network && (
+                <p
+                  role="status"
+                  className={`mt-3 text-xs ${
+                    network.ok ? 'text-[var(--omi-ok)]' : 'text-[var(--omi-warn)]'
+                  }`}
+                >
+                  {network.ok
+                    ? 'Your wallet is on the intended network (Ethereum Sepolia).'
+                    : 'Your wallet is on a different network, so a real send would be blocked here. This app never switches networks for you.'}
+                </p>
+              )}
+
+              <p className="mt-3 text-xs leading-relaxed text-[var(--omi-muted)]">
+                This is exactly what a wallet would be asked to sign. The decoded view is read from
+                these same bytes — never re-encoded — so what you see is what would be signed.
+                Nothing is signed in this build.
+              </p>
+            </div>
+          )}
         </>
       )}
 
