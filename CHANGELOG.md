@@ -65,6 +65,22 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   the single source of truth; `apps/web/src/lib/tx/` now re-exports them.
   `transactionsEnabled` stays false; nothing is wired into the UI. New unit
   tests for build/decode/round-trip/P3-tampering.
+- **Phase 2 pure transaction-flow building blocks (`@omikami/security`
+  `tx-flow`, no transactions enabled).** Added the fail-safe helpers a later
+  send flow will compose, all pure and wallet-API-free: `classifyTxError` +
+  `txErrorMessage` (the safe, non-leaking error taxonomy of design §10),
+  mirroring the read-only `classifyConnectError` hygiene; `checkTransactionNetwork`
+  (the wrong-network gate, threat P5 — only the exact intended chain passes, an
+  unknown chain blocks, and the app never switches networks for you); and
+  `buildVerifiedSend` (builds the request together with the preview it decodes
+  to, §4.7). The actual broadcast stays injected at the write-surface boundary
+  later. New unit tests; `transactionsEnabled` remains false; still read-only.
+- **Dependency security patch (7 advisories → 0).** Next.js `16.4.4 → 16.4.6`
+  resolves 7 moderate advisories (information disclosure / cache poisoning /
+  image-SVG / HttpOnly-cookie — all server-side cache and image features our
+  static export never uses, but the audit gate flags them regardless). `pnpm
+  audit` back to **0**; all gates green; egress unchanged (bundle 31 files,
+  0 unknown hosts); still read-only, no transactions.
 
 Dependency security update; still strictly read-only and testnet-only. No
 first-party product-code, transaction, egress, or read-only-invariant changes.
