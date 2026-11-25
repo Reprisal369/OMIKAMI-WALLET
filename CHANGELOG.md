@@ -81,6 +81,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   static export never uses, but the audit gate flags them regardless). `pnpm
   audit` back to **0**; all gates green; egress unchanged (bundle 31 files,
   0 unknown hosts); still read-only, no transactions.
+- **Phase 2 transaction lifecycle state machine (`@omikami/security`
+  `tx-state-machine`, no transactions enabled).** A pure reducer composing the
+  earlier building blocks into the explicit lifecycle of design §9: `idle →
+  previewing → awaiting-signature → pending → confirmed | failed | replaced |
+  dropped`. Two safety properties are structural: every failure transition
+  lands on `failed` (or a terminal receipt) with a safe error kind — never a
+  silent proceed — and every transition fires ONLY from its expected source
+  state, so a mis-ordered call is a no-op that cannot skip a guard (e.g. jump
+  straight to `pending`). The wrong-network gate runs before `awaiting-signature`
+  (P5). Side effects (sign, broadcast, poll) stay injected at the write-surface
+  boundary; the machine itself touches no wallet API. New unit tests cover the
+  happy path, safe failures, and mis-ordered-call no-ops; still read-only.
 
 Dependency security update; still strictly read-only and testnet-only. No
 first-party product-code, transaction, egress, or read-only-invariant changes.
