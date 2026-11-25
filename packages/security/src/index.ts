@@ -210,3 +210,5 @@ export * from './allowance';
 export * from './tx-build';
 
 export * from './tx-flow';
+
+export * from './tx-state-machine';
