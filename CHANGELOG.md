@@ -112,6 +112,33 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   forbidden-pattern gate still fails on a `sendTransaction` anywhere else
   (proven by probe). The pure gate (`assertTransactionsEnabled` +
   `TransactionsDisabledError`) is unit-tested; nothing is wired into the UI.
+- **STATUS: REVIEW — pre-connection security hardening (no transactions
+  enabled, no hook connected).** Hardened and proved the containment of the
+  disabled transaction module:
+  - **Narrowed the forbidden-pattern exception** to the single `sendTransaction`
+    primitive under `apps/web/src/lib/tx/` only. The broad write/sign/switch
+    rule (hooks, `writeContract`, `signTypedData`, `switchChain`, …) is now
+    forbidden **everywhere, including `tx/`** — the smallest exception the
+    current code needs. Verified by 6 probes (`sendTransaction` inside tx/ OK;
+    outside tx/ FAILS; `useSendTransaction`/`writeContract`/`signTypedData`
+    inside tx/ all FAIL).
+  - **Mocked-provider unit tests for the real wallet invocation** (`apps/web`
+    gains a node-only vitest runner): gate OFF → `TransactionsDisabledError` and
+    **zero** calls to the wallet; gate ON (wiring proof) → the exact request,
+    once; rejected-wallet propagation without retry; request not mutated.
+  - **Adversarial security scenarios** (pure, no wallet): network change during
+    preparation blocks (P5), unknown/disconnected network fails closed, stale /
+    mismatched preview is rejected (P3), duplicate submission is prevented
+    (re-sign and re-request are no-ops; terminal states are final), the request
+    embeds no sender.
+  - **Playwright runtime security proofs** (mocked provider records every
+    method): no signing/write method ever reaches the provider, no send/sign
+    control exists while disabled, unsupported networks stay blocked, read-only
+    functionality unaffected. (Run in CI; skipped locally without a browser.)
+  - Verified: `transactionsEnabled` false on every network, no reachable signing
+    path (`tx/send.ts` imported nowhere), mainnet blocked, no gate conflict.
+    Full suite green; unit 160 → **173**. PROJECT_STATE.md + THREAT_MODEL.md
+    (REVIEW item P11) updated. **Nothing enabled, merged, deployed, or tagged.**
 
 Dependency security update; still strictly read-only and testnet-only. No
 first-party product-code, transaction, egress, or read-only-invariant changes.

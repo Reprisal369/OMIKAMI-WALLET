@@ -23,9 +23,14 @@ export async function installMockWallet(page: Page, opts: MockOptions = {}) {
     ({ address, chainId, reject }) => {
       let connected = false;
       const listeners: Record<string, ((...a: unknown[]) => void)[]> = {};
+      // Record EVERY method the app asks the injected provider for, so security
+      // e2e tests can assert that no signing/write method ever reaches it.
+      const win = window as unknown as { __walletMethods?: string[] };
+      win.__walletMethods = [];
       const provider = {
         isMetaMask: true,
         request: async ({ method }: { method: string }) => {
+          win.__walletMethods!.push(method);
           switch (method) {
             case 'eth_requestAccounts':
               if (reject) {

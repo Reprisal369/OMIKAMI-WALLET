@@ -1,6 +1,125 @@
 # OMIKAMI WALLET — PROJECT_STATE.md
 
-Last updated: 2026-08-14 (session 14: v0.5.5 IMMUTABLE audit candidate — a11y pass + nanoid patch; tag finalized at 1b1bbc2)
+Last updated: 2026-11-26 (session 15: Phase 2 transaction MODULE built in-code but GATED OFF; pre-connection security verification; GO/NO-GO for an isolated dev branch)
+
+## Session 15 — PHASE 2 TX MODULE (CODE-ONLY, GATED OFF) + PRE-CONNECTION SECURITY VERIFICATION (2026-11-26)
+
+Owner decision (2026-11-03): defer the external review to **before mainnet / real
+funds** rather than gate testnet build work; keep building the transaction path on
+the testnet track **with transactions disabled** until the owner consciously flips
+the switch. Since then the full send pipeline was implemented **in code only**,
+behind the hard gate. This session is an evidence-based verification BEFORE any
+wallet hook is connected. Nothing was deployed, published, or enabled.
+
+### Identity (evidence)
+- **Product version (package.json, root + apps/web): `0.5.8`.**
+- **Current `main` HEAD: `cd32d92`** (merge PR #76, `feat/phase2-gated-send`).
+- **Latest release tag: `v0.5.7` (`79a22b5`).** NOTE — the 0.5.8 version string and
+  all Phase 2 work are **UNRELEASED/UNTAGGED**: they live on `main` above `v0.5.7`
+  under CHANGELOG `[Unreleased]`. Version/tag hygiene gap: package.json says 0.5.8
+  but no `v0.5.8` tag exists. (Not a security defect; flagged for release hygiene.)
+- **Read-only audit candidate `v0.5.5` (`1b1bbc2`) is INTACT and unmodified** — tags
+  present: v0.5.0 … v0.5.7; v0.5.5 unchanged.
+
+### Phase 2 transaction module introduced since v0.5.5 (all code-only, gated OFF)
+The versions between: v0.5.5 → v0.5.6 → v0.5.7 (tagged; internal pre-audit
+hardening + reproducible-build groundwork) → 0.5.8 (untagged security patch:
+next 16.3.5→16.4.6 across two patches, zod/vitest/vite/minimatch overrides,
+`pnpm audit` 0). The Phase 2 transaction work (all under `[Unreleased]`):
+- **Write-surface boundary** `apps/web/src/lib/tx/` — the ONLY directory where
+  wallet write APIs may live (M1 gate exempts this dir and nowhere else). Holds
+  `index.ts` (re-exports the shared `TxRequest`/`TxState`/`TxErrorKind` types from
+  `@omikami/types`), `README.md`, and `send.ts`.
+- **`@omikami/security` pure modules** (no wallet APIs; viem encode/decode only):
+  - `tx-build.ts` — `buildSendTx` / `decodeSendTx` / `assertShownEqualsSigned`
+    (P3: the preview is decoded from the request's own bytes, so shown == signed;
+    non-transfer/garbage/native-value-on-token-call all hard-block, no blind
+    signing P2).
+  - `tx-flow.ts` — `classifyTxError` + `txErrorMessage` (safe §10 error taxonomy),
+    `checkTransactionNetwork` (wrong-network gate P5), `buildVerifiedSend`,
+    `assertTransactionsEnabled` + `TransactionsDisabledError` (the master write gate).
+  - `tx-state-machine.ts` — pure lifecycle reducer (§9): idle → previewing →
+    awaiting-signature → pending → confirmed|failed|replaced|dropped. Every failure
+    transition lands on `failed`/terminal with a safe kind; every transition fires
+    only from its expected source state (mis-ordered call = no-op, no guard skip).
+- **UI (read-only, display-only):** `SendPreviewPanel` now renders the exact
+  `TxRequest` that would be built (to/value/calldata/chainId) plus the values decoded
+  from those same bytes, plus the P5 network check. No new inputs, no send control.
+- **First gated wallet-write entry point** `apps/web/src/lib/tx/send.ts` —
+  `sendGatedTransaction` calls `assertTransactionsEnabled(flag)` and only then an
+  injected `wallet.sendTransaction(...)`. The flag is false everywhere, so the
+  wallet call is unreachable.
+
+### Security verification (evidence-based, this session)
+Ran against `main`-equivalent working tree (version 0.5.8). Each claim has evidence:
+1. **`transactionsEnabled` is false on every network.** `packages/chain-config`
+   registry: Sepolia(11155111) `transactionsEnabled:false`, mainnet(1)
+   `enabled:false`+`transactionsEnabled:false`; helper returns the chain value
+   `?? false`, so unknown chains are false too. PASS.
+2. **No reachable signing/transaction-execution path.** The only wallet write call
+   (`sendTransaction` in `tx/send.ts`) is **not imported anywhere** — `grep` for
+   `sendGatedTransaction`/`lib/tx/send`/`WalletSend` outside the file: 0 hits → dead
+   code, unreachable from the UI. No `useSendTransaction`/`useWriteContract`/
+   `useSignMessage`/`useSwitchChain`/`writeContract`/`signMessage`/`switchChain`/
+   `prepareTransactionRequest` anywhere outside `tx/`: 0 hits. PASS.
+3. **Mainnet transaction functionality remains blocked.** mainnet `enabled:false`
+   AND `transactionsEnabled:false`; only named for the wrong-network warning. PASS.
+4. **No conflict between the tx module and the read-only enforcement gates.** The
+   M1 forbidden-pattern rule is exempted ONLY for files under
+   `apps/web/src/lib/tx/` and ONLY for that one rule (`msg.includes('read-only
+   invariant (M1)')`); every other rule still applies in `tx/` too. The gate PASSES,
+   and a probe confirms a `sendTransaction` placed OUTSIDE `tx/` still FAILS the
+   build (exit 1). No weakening of the other gates. PASS.
+
+### Full verification suite — results (2026-11-26)
+| Check | Result |
+|---|---|
+| install `--frozen-lockfile` | PASS |
+| lint (eslint) | PASS |
+| typecheck (all packages + app) | PASS |
+| typecheck:e2e | PASS |
+| forbidden-pattern gate (+ out-of-tx probe) | PASS |
+| secret gate (`check:secrets`) | PASS |
+| `pnpm audit` | PASS (0 vulnerabilities) |
+| build (Next static export) | PASS |
+| bundle gate | PASS (31 files, 0 unknown hosts, 0 sourcemaps) |
+| csp (`generate-csp`) | PASS |
+| unit tests | **PASS — 160/160** (security 140 · chain-config 7 · token-registry 13) |
+| Playwright e2e (20 cases × 2 viewports) | **SKIPPED locally** (no browser in sandbox) — runs in CI; last CI run on `main` green |
+| **Failed** | **none** |
+
+### Remaining security gaps & external audit requirements (NOT satisfied)
+- **External security review of the read-only build is still OUTSTANDING** (Phase 2
+  precondition #1). Deferred to pre-mainnet by owner decision, but never performed.
+- **Phase 2 design sign-off (precondition #2) not done**; a Phase-2-specific threat
+  model is drafted (design doc §6, P1–P10) but not externally accepted.
+- **Reproducible builds (Gate 8) still open.**
+- **Independent paid smart-contract / app-sec audit required before mainnet** — not done.
+- **`tx/send.ts` wallet-call line is untested** — apps/web has no unit runner; only
+  the pure gate (`assertTransactionsEnabled`) is unit-tested. When the hook is
+  connected, add runtime + e2e coverage proving the gate blocks a send attempt.
+- **No e2e yet exercises the gated send path at runtime** (currently proven by unit
+  test + dead-code analysis only).
+- Version/tag hygiene: reconcile package.json 0.5.8 with the missing `v0.5.8` tag.
+
+### GO / NO-GO — connecting the transaction hook in an ISOLATED DEV BRANCH
+**GO, conditional** — the containment evidence supports wiring the hook on an
+**isolated, non-deployed dev branch only**, because the read-only invariant is
+enforced by three independent mechanisms that all currently hold: the per-chain
+`transactionsEnabled` gate (false everywhere), the centralized `tx/` write surface
+with the CI forbidden-gate blocking write APIs anywhere else (probe-verified), and
+the currently-unreachable dead-code status of `send.ts`.
+
+Conditions on that GO (all required; none auto-approved):
+1. Work stays on an isolated branch; **do NOT merge to `main`** until the items below are met.
+2. **`transactionsEnabled` stays `false`** for every chain in committed code; any flip is local/dev-only and never committed.
+3. Add an **e2e test proving the gate blocks at runtime** (a send attempt with the flag false raises `TransactionsDisabledError` and nothing is sent) before the hook work is considered done.
+4. **No deploy, no publish, no tag** of the branch.
+5. The standing preconditions — external review of the read-only build, Phase 2 design sign-off — **remain required before any testnet enablement is merged or deployed**, and the paid audit + MAINNET_CHECKLIST remain required before mainnet.
+
+**NO-GO** for: enabling transactions on any network (incl. Sepolia) in committed/
+deployed code, merging the hook to `main`, or any mainnet work — until the above
+preconditions are satisfied.
 
 ## Session 14 — A11Y PASS + DEPENDENCY PATCH → v0.5.5 IMMUTABLE AUDIT CANDIDATE (2026-08-07/08)
 

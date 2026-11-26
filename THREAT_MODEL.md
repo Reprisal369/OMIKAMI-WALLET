@@ -15,6 +15,35 @@ the external security review, a contract audit where applicable, and the
 `MAINNET_CHECKLIST.md` gates. The external review is deferred to before
 mainnet / real funds rather than gating testnet build work.
 
+> **REVIEW (proposed, pending external sign-off) — 2026-11-26.** The Phase 2
+> transaction module now exists in code, GATED OFF. The following additions to
+> this threat model are PROPOSED and must be reviewed before the transaction
+> hook is connected on `main` or any transaction is enabled:
+>
+> - **P11 — Write-surface containment.** *Path:* write/sign code leaks into the
+>   UI or a read-only package, or the single write entry point is called while
+>   disabled. *Prevent:* exactly one wallet-write call exists
+>   (`apps/web/src/lib/tx/send.ts` → `sendGatedTransaction`), guarded by
+>   `assertTransactionsEnabled` (throws `TransactionsDisabledError` while
+>   `transactionsEnabled` is false — true on every chain today); the M1
+>   forbidden-pattern gate exempts write APIs ONLY under `apps/web/src/lib/tx/`
+>   and fails the build for a write API anywhere else (probe-verified). The
+>   module is currently **unreachable dead code** (imported nowhere). *Detect:*
+>   CI forbidden-gate; grep for imports of the send entry point. *Residual:*
+>   once the hook is connected and the flag is flipped, read-only ends — so the
+>   flip is the control point, and connecting the hook must add runtime + e2e
+>   proof that the gate blocks a send while disabled. *Test:* unit test on
+>   `assertTransactionsEnabled`; **TODO before connect:** e2e proving a disabled
+>   send raises and sends nothing.
+> - **P3 enforcement already implemented (code-only):** `tx-build`
+>   `assertShownEqualsSigned` re-decodes the outgoing request and hard-blocks any
+>   shown-vs-signed divergence (unit-tested). Reviewer to confirm this is
+>   sufficient as the structural guarantee for §E / P-series when signing is
+>   enabled.
+>
+> These are REVIEW items, not accepted controls. Enabling transactions remains
+> blocked on the §2 preconditions in `docs/design/PHASE_2_TRANSACTIONS.md`.
+
 Format per threat: **Path** (attack path) · **Impact** · **Prevent** (preventive controls) · **Detect** · **Recover** · **Residual** (remaining risk) · **Test** (testing method).
 
 Baseline architectural fact used throughout: OMIKAMI WALLET never possesses keys or funds. The worst cases are therefore (a) tricking the user into signing something harmful, and (b) showing the user false information. Most controls target those two outcomes.
