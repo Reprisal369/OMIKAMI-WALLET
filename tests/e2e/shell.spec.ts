@@ -285,6 +285,74 @@ test.describe('OMIKAMI WALLET — read-only shell', () => {
     ).toHaveCount(0);
   });
 
+  // --- STATUS: REVIEW — runtime security proofs (mocked provider only) ---
+  // Every method the app asks the injected provider for is recorded on
+  // window.__walletMethods by installMockWallet. A signing/write request would
+  // show up here; these tests assert it never does.
+  const walletMethods = (page: import('@playwright/test').Page) =>
+    page.evaluate(() => (window as unknown as { __walletMethods?: string[] }).__walletMethods ?? []);
+  const SIGNING_RE = /sign|sendtransaction|sendraw|signtransaction|switchethereum|addethereum/i;
+
+  test('SEC-1: no signing/write method ever reaches the wallet provider (read-only drive)', async ({
+    page,
+  }) => {
+    await installMockWallet(page);
+    await interceptRpc(page);
+    await page.goto('/');
+    await connectWallet(page);
+    // Drive the full read-only preview with valid input — the richest path.
+    const panel = page
+      .locator('section')
+      .filter({ has: page.getByText(/transfer preview \(read-only\)/i) });
+    await panel.getByLabel(/recipient address/i).fill('0x00000000000000000000000000000000deadbeef');
+    await panel.getByLabel(/amount/i).fill('1');
+    await expect(panel.getByText(/transaction that would be built/i)).toBeVisible();
+    const methods = await walletMethods(page);
+    // The security property: not a single signing/write method reached the provider.
+    expect(methods.filter((m) => SIGNING_RE.test(m))).toEqual([]);
+    // Sanity: the connect actually happened, so the drive did exercise the provider.
+    expect(methods).toContain('eth_requestAccounts');
+  });
+
+  test('SEC-2: no send/sign control exists while transactions are disabled', async ({ page }) => {
+    await installMockWallet(page);
+    await interceptRpc(page);
+    await page.goto('/');
+    await connectWallet(page);
+    await expect(
+      page.getByRole('button', {
+        name: /send|sign|approve|permit|swap|bridge|stake|broadcast|submit|confirm/i,
+      }),
+    ).toHaveCount(0);
+    // The read-only SHIELD check states signing is disabled for the build.
+    await expect(page.getByText(/signing[^.]*disabled|disabled in this build/i).first()).toBeVisible();
+    const methods = await walletMethods(page);
+    expect(methods.filter((m) => SIGNING_RE.test(m))).toEqual([]);
+  });
+
+  test('SEC-3: an unsupported network stays blocked and requests no signing', async ({ page }) => {
+    await installMockWallet(page, { chainIdHex: MAINNET_HEX });
+    await interceptRpc(page);
+    await page.goto('/');
+    await connectWallet(page);
+    await expect(page.getByText(/which this read-only build does not support/i)).toBeVisible();
+    await expect(page.getByText(/never switches networks for you/i).first()).toBeVisible();
+    const methods = await walletMethods(page);
+    expect(methods.filter((m) => SIGNING_RE.test(m))).toEqual([]);
+  });
+
+  test('SEC-4: existing read-only functionality is unaffected (connect + token panel)', async ({
+    page,
+  }) => {
+    await installMockWallet(page);
+    await interceptRpc(page);
+    await page.goto('/');
+    await connectWallet(page);
+    await expect(page.getByRole('button', { name: 'Disconnect wallet' })).toBeVisible();
+    await expect(page.getByText(/token balances/i).first()).toBeVisible();
+    await expect(page.getByText(/omikami shield/i).first()).toBeVisible();
+  });
+
   test('keyboard navigation reaches the primary action', async ({ page }) => {
     await installMockWallet(page);
     await interceptRpc(page);

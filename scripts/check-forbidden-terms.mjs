@@ -26,18 +26,28 @@ const RULES = [
   // API may appear in source. This makes the read-only promise a failing build
   // gate, not just a convention. Adding any of these requires a threat-model
   // sign-off and lifting the read-only phase.
-  [/\b(useSendTransaction|useWriteContract|useContractWrite|useSignMessage|useSignTypedData|useSwitchChain|writeContract|sendTransaction|signMessage|signTypedData|switchChain|prepareTransactionRequest)\b/, 'wallet write/sign/switch API forbidden — read-only invariant (M1)'],
+  //
+  // This BROAD rule is NEVER exempted — not even under the tx/ write-surface.
+  // Hooks (useSendTransaction/…), writeContract, message/typed-data signing and
+  // chain switching are not needed by the current write surface, so they stay
+  // forbidden everywhere. (Widen deliberately, with review, when approve/permit
+  // actually require writeContract/signTypedData.)
+  [/\b(useSendTransaction|useWriteContract|useContractWrite|useSignMessage|useSignTypedData|useSwitchChain|writeContract|signMessage|signTypedData|switchChain|prepareTransactionRequest)\b/, 'wallet write/sign/switch API forbidden — read-only invariant (M1)'],
+  // The ONE write primitive the tx/ write-surface is allowed to use today, and
+  // only there. Narrowed from the full set above so the exception is as small as
+  // the current code requires: exactly `sendTransaction`, exactly under tx/.
+  [/\bsendTransaction\b/, 'sendTransaction forbidden outside the tx/ write-surface (M1-send)'],
 ];
 
 // The ONE reviewed exception permitted to use browser storage (THREAT_MODEL C1c).
 const STORAGE_EXCEPTION = 'apps/web/src/lib/rpc-storage.ts';
 
 // Phase 2 write-surface boundary (PHASE_2_TRANSACTIONS.md §5): the single
-// reviewed directory where wallet write/sign/switch APIs may ever live. The
-// M1 read-only rule is exempted ONLY here and nowhere else; every other rule
-// (key material, storage, raw HTML, eval, …) still applies in this module too.
-// The module holds no write code yet (transactions remain disabled) — this
-// keeps the eventual write surface tiny, centralized, and auditable.
+// reviewed directory where the tx write primitive may live. ONLY the narrowed
+// `sendTransaction` rule (M1-send) is exempted here, and nowhere else; the broad
+// M1 write/sign/switch rule and every other rule (key material, storage, raw
+// HTML, eval, …) still apply in this module too. Narrowest exception the current
+// code requires — transactions remain disabled and the module is unreachable.
 const WRITE_SURFACE_PREFIX = 'apps/web/src/lib/tx/';
 
 const violations = [];
@@ -55,7 +65,9 @@ function walk(dir) {
       const isWriteSurface = norm.includes(WRITE_SURFACE_PREFIX);
       for (const [re, msg] of RULES) {
         if (isStorageException && msg.includes('browser storage')) continue;
-        if (isWriteSurface && msg.includes('read-only invariant (M1)')) continue;
+        // Exempt ONLY the single sendTransaction primitive, and ONLY under tx/.
+        // The broad M1 write/sign/switch rule above is never exempted.
+        if (isWriteSurface && msg.includes('(M1-send)')) continue;
         lines.forEach((line, i) => {
           if (re.test(line)) violations.push(`${p}:${i + 1} — ${msg}\n    ${line.trim().slice(0, 120)}`);
         });
