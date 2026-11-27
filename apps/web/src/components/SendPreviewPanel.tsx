@@ -1,17 +1,25 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { erc20Abi } from 'viem';
-import { useAccount, useBalance, useReadContract } from 'wagmi';
+import { useAccount, useBalance, usePublicClient, useReadContract } from 'wagmi';
 import { DEFAULT_CHAIN_ID } from '@omikami/chain-config';
 import {
   buildSendPreview,
   buildVerifiedSend,
   checkTransactionNetwork,
   emphasizeAddress,
+  simulateSend,
 } from '@omikami/security';
-import type { SendPreviewAsset, VerifiedSend } from '@omikami/security';
+import type {
+  SendPreviewAsset,
+  SimulationClient,
+  SimulationStatus,
+  SimulationSummary,
+  VerifiedSend,
+} from '@omikami/security';
 import { VERIFIED_TOKENS, formatTokenAmount, sanitizeTokenText } from '@omikami/token-registry';
+import type { SecurityCheckStatus } from '@omikami/types';
 import { Panel, StatusBadge } from '@omikami/ui';
 
 /**
@@ -23,6 +31,15 @@ import { Panel, StatusBadge } from '@omikami/ui';
  */
 
 const TOKENS = VERIFIED_TOKENS.filter((t) => t.chainId === DEFAULT_CHAIN_ID);
+
+/** Maps a simulation verdict to a SHIELD badge colour. */
+const SIM_BADGE: Record<SimulationStatus, SecurityCheckStatus> = {
+  passed: 'ok',
+  unverified: 'warning',
+  warning: 'warning',
+  revert: 'blocked',
+  unavailable: 'info',
+};
 
 function EmphAddress({ address }: { address: string }) {
   const { start, middle, end } = emphasizeAddress(address, 6, 4);
@@ -136,6 +153,51 @@ export function SendPreviewPanel() {
     built && account.status === 'connected'
       ? checkTransactionNetwork(built.request.chainId, account.chainId)
       : undefined;
+
+  // Read-only pre-flight SIMULATION (advisory). Uses the public READ client
+  // (estimateGas / eth_call) over the approved RPC — never the wallet, never a
+  // signature. It re-runs whenever the request, account or network changes, and
+  // discards a stale in-flight result (account/network/input invalidation).
+  const publicClient = usePublicClient({ chainId: DEFAULT_CHAIN_ID });
+  const [simulation, setSimulation] = useState<SimulationSummary | undefined>(undefined);
+  const [simulating, setSimulating] = useState(false);
+
+  useEffect(() => {
+    if (!built || !account.address || !onSepolia || !publicClient) {
+      setSimulation(undefined);
+      setSimulating(false);
+      return;
+    }
+    let cancelled = false;
+    setSimulating(true);
+    const client: SimulationClient = {
+      chainId: DEFAULT_CHAIN_ID,
+      estimateGas: (a) =>
+        publicClient.estimateGas({ account: a.account, to: a.to, value: a.value, data: a.data }),
+    };
+    simulateSend({
+      request: built.request,
+      from: account.address,
+      walletChainId: account.chainId,
+      context: { kind: asset.kind, assetVerified: asset.verified },
+      client,
+    })
+      .then((result) => {
+        if (!cancelled) {
+          setSimulation(result);
+          setSimulating(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSimulation(undefined);
+          setSimulating(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [built, account.address, account.chainId, onSepolia, publicClient, asset.kind, asset.verified]);
 
   return (
     <Panel title="Transfer preview (read-only)">
@@ -314,6 +376,28 @@ export function SendPreviewPanel() {
                     : 'Your wallet is on a different network, so a real send would be blocked here. This app never switches networks for you.'}
                 </p>
               )}
+
+              <div className="mt-3 border-t border-[var(--omi-border)] pt-3">
+                <p className="mb-1 text-xs uppercase tracking-wide text-[var(--omi-muted)]">
+                  Pre-flight simulation (read-only)
+                </p>
+                {simulating && !simulation && (
+                  <p className="text-xs text-[var(--omi-muted)]" role="status">
+                    Simulating…
+                  </p>
+                )}
+                {simulation && (
+                  <div className="flex items-start gap-2" role="status">
+                    <StatusBadge status={SIM_BADGE[simulation.status]} />
+                    <div>
+                      <p className="text-sm font-medium">{simulation.label}</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-[var(--omi-muted)]">
+                        {simulation.detail}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <p className="mt-3 text-xs leading-relaxed text-[var(--omi-muted)]">
                 This is exactly what a wallet would be asked to sign. The decoded view is read from
