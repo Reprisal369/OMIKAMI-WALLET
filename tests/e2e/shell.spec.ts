@@ -353,6 +353,30 @@ test.describe('OMIKAMI WALLET — read-only shell', () => {
     await expect(page.getByText(/omikami shield/i).first()).toBeVisible();
   });
 
+  test('SIM-1 (security): read-only pre-flight simulation renders a verdict and never signs', async ({
+    page,
+  }) => {
+    await installMockWallet(page);
+    await interceptRpc(page);
+    await page.goto('/');
+    await connectWallet(page);
+    const panel = page
+      .locator('section')
+      .filter({ has: page.getByText(/transfer preview \(read-only\)/i) });
+    await panel.getByLabel(/recipient address/i).fill('0x00000000000000000000000000000000deadbeef');
+    await panel.getByLabel(/amount/i).fill('0.001');
+    await expect(panel.getByText(/pre-flight simulation \(read-only\)/i)).toBeVisible();
+    // A verdict appears (any status is acceptable; the point is it renders safely).
+    await expect(
+      panel
+        .getByText(/simulation passed|simulation unavailable|revert detected|warning|unverified/i)
+        .first(),
+    ).toBeVisible({ timeout: 15_000 });
+    // The pre-flight uses the read transport only — no signing reached the wallet.
+    const methods = await walletMethods(page);
+    expect(methods.filter((m) => SIGNING_RE.test(m))).toEqual([]);
+  });
+
   test('keyboard navigation reaches the primary action', async ({ page }) => {
     await installMockWallet(page);
     await interceptRpc(page);

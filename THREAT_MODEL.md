@@ -44,6 +44,31 @@ mainnet / real funds rather than gating testnet build work.
 > These are REVIEW items, not accepted controls. Enabling transactions remains
 > blocked on the §2 preconditions in `docs/design/PHASE_2_TRANSACTIONS.md`.
 
+> **REVIEW (proposed, pending external sign-off) — 2026-11-28. Read-only
+> transaction simulation.** A pre-flight simulation engine
+> (`@omikami/security` `tx-simulation`) now exists, STATUS: REVIEW, performing a
+> read-only gas-estimation / `eth_call`-style pre-flight over the approved RPC to
+> detect whether a transaction WOULD revert, classified as
+> passed / warning / revert / unverified / unavailable. Relates to threat **P6
+> (simulation spoofing / mismatch)**:
+> - *Prevent:* the result is advisory and is NEVER reported as "safe" — a clean
+>   pre-flight means only "would not revert under current chain state". The read
+>   client's type exposes no signing/sending method, and the forbidden-pattern
+>   gate blocks write APIs here as everywhere. It fails closed to `unavailable`
+>   on wrong/unknown network, no account, timeout, malformed or conflicting
+>   responses, and makes NO RPC call when a precondition already fails. Unverified
+>   tokens are `unverified`, never `passed`. Stale results (account/network/input
+>   change) are discarded.
+> - *Known limitation (documented; no new external service introduced):* this
+>   build does NOT compute balance-change deltas or token-transfer effects —
+>   that needs tracing/simulation infrastructure (a new outbound host) we
+>   deliberately do not add. Simulation answers executability plus an advisory
+>   gas estimate only, and the UI says so. Full balance-change verification is a
+>   future, separately-reviewed enhancement.
+> - *Test:* mocked-provider unit tests for every outcome and every fail-closed
+>   path; a Playwright test confirms a verdict renders and no signing reaches the
+>   provider.
+
 Format per threat: **Path** (attack path) · **Impact** · **Prevent** (preventive controls) · **Detect** · **Recover** · **Residual** (remaining risk) · **Test** (testing method).
 
 Baseline architectural fact used throughout: OMIKAMI WALLET never possesses keys or funds. The worst cases are therefore (a) tricking the user into signing something harmful, and (b) showing the user false information. Most controls target those two outcomes.

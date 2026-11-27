@@ -117,6 +117,8 @@ export async function interceptRpc(page: Page, mode: RpcMode = 'ok', seen?: stri
                 : '0x' + balanceWord
               : m.method === 'eth_chainId'
                 ? '0xaa36a7'
+              : m.method === 'eth_estimateGas'
+                ? '0x5208' // 21000 — read-only pre-flight gas estimate
                 : '0x0',
     });
     const parsed = JSON.parse(body) as

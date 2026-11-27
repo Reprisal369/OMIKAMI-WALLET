@@ -15,6 +15,25 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+- **STATUS: REVIEW — Phase 2 read-only transaction simulation (`@omikami/security`
+  `tx-simulation`; no transactions enabled).** A pre-flight engine that runs a
+  read-only gas-estimation / `eth_call`-style check over the approved RPC to
+  detect whether a transaction WOULD revert, classified as **passed / warning /
+  revert / unverified / unavailable**. Honest by design: a clean pre-flight is
+  NEVER called "safe" (only "would not revert under current state"); balance
+  changes are **not fabricated** and not computed — a documented limitation, no
+  tracing service added; every uncertainty (wrong/unknown network, no account,
+  timeout, malformed, conflicting source) **fails closed** to `unavailable` and
+  makes no RPC call when a precondition already fails; unverified tokens are
+  `unverified`, never `passed`; stale results (account/network/input change) are
+  discarded. The injected read client's type exposes only `estimateGas` — no
+  signing/sending capability — and the forbidden-pattern gate blocks write APIs
+  here too. Wired read-only into the Transfer-preview panel (advisory verdict;
+  no new input, no send control, no new egress — bundle still 31 files / 0
+  unknown hosts). Covered by mocked-provider unit tests (+21) and a Playwright
+  test (SIM-1) proving a verdict renders and no signing reaches the provider.
+  `transactionsEnabled` stays false; THREAT_MODEL.md updated (P6, REVIEW).
+  Unit 173 → **194**.
 - **Phase 2 groundwork started (owner decision, 2026-11-03).** The external
   security review is now deferred to before mainnet / real funds, rather than
   gating testnet build work. Transaction *groundwork* may land on the testnet

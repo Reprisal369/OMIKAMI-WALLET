@@ -212,3 +212,5 @@ export * from './tx-build';
 export * from './tx-flow';
 
 export * from './tx-state-machine';
+
+export * from './tx-simulation';
